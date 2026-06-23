@@ -82,9 +82,22 @@ def process_fits_file(
     fits_path,
     output_npy_dir,
     output_png_dir,
-    sigma_factor,
     linked,
 ):
+    print(f"Processing {fits_path}")
+
+    basename = fits_path.stem
+
+    npy_path = output_npy_dir / f"{basename}.npy"
+    png_path = output_png_dir / f"{basename}.png"
+
+    # ----------------------------
+    # SKIP LOGIC
+    # ----------------------------
+    # if npy_path.exists() and png_path.exists():
+    #     print(f"[SKIP] {fits_path.name}: già processato")
+    #     return
+
     try:
         with fits.open(fits_path) as hdul:
             data = hdul[0].data
@@ -101,7 +114,6 @@ def process_fits_file(
         if data.shape[-1] == 3:
             data = np.transpose(data, (2, 0, 1))
 
-        # Controllo finale
         if data.shape[0] != 3:
             print(f"[SKIP] {fits_path.name}: servono 3 canali RGB")
             return
@@ -110,48 +122,32 @@ def process_fits_file(
 
         stretched = adaptive_arcsinh_stretch(
             data,
-            # sigma_factor=sigma_factor,
             linked=linked,
         )
 
-        # (3,H,W) -> (H,W,3)
         rgb = np.transpose(stretched, (1, 2, 0))
-
-        # sicurezza: elimina eventuale alpha
         rgb = rgb[..., :3]
 
-        basename = fits_path.stem
-
-        # ============================
-        # Salvataggio .npy
-        # ============================
-        npy_path = output_npy_dir / f"{basename}.npy"
-
+        # ----------------------------
+        # SAVE .npy
+        # ----------------------------
         np.save(
             npy_path,
             rgb.astype(np.float32)
         )
 
-        # ============================
-        # Salvataggio PNG
-        # ============================
-        png = np.clip(rgb * 255.0, 0, 255)
-        png = png.astype(np.uint8)
+        # ----------------------------
+        # SAVE PNG
+        # ----------------------------
+        png = np.clip(rgb * 255.0, 0, 255).astype(np.uint8)
 
-        image = Image.fromarray(
-            png,
-            mode="RGB"
-        )
-
-        png_path = output_png_dir / f"{basename}.png"
-        image.save(png_path)
+        Image.fromarray(png, mode="RGB").save(png_path)
 
         print(f"[OK] {fits_path.name}")
 
     except Exception as e:
         print(f"[ERROR] {fits_path.name}")
         print(e)
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -220,7 +216,6 @@ def main():
             fits_file,
             output_npy_dir,
             output_png_dir,
-            sigma_factor=args.sigma_factor,
             linked=args.linked,
         )
 
