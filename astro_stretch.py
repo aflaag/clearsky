@@ -94,9 +94,9 @@ def process_fits_file(
     # ----------------------------
     # SKIP LOGIC
     # ----------------------------
-    # if npy_path.exists() and png_path.exists():
-    #     print(f"[SKIP] {fits_path.name}: già processato")
-    #     return
+    if npy_path.exists() and png_path.exists():
+        print(f"[SKIP] {fits_path.name}: già processato")
+        return
 
     try:
         with fits.open(fits_path) as hdul:
