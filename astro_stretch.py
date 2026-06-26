@@ -83,18 +83,20 @@ def process_fits_file(
     output_npy_dir,
     output_png_dir,
     linked,
+    save_png,
 ):
     print(f"Processing {fits_path}")
 
     basename = fits_path.stem
 
     npy_path = output_npy_dir / f"{basename}.npy"
-    png_path = output_png_dir / f"{basename}.png"
+    png_path = output_png_dir / f"{basename}.png" if save_png else None
 
     # ----------------------------
     # SKIP LOGIC
     # ----------------------------
-    if npy_path.exists() and png_path.exists():
+    already_done = npy_path.exists() and (not save_png or png_path.exists())
+    if already_done:
         print(f"[SKIP] {fits_path.name}: già processato")
         return
 
@@ -137,13 +139,15 @@ def process_fits_file(
         )
 
         # ----------------------------
-        # SAVE PNG
+        # SAVE PNG (opzionale)
         # ----------------------------
-        png = np.clip(rgb * 255.0, 0, 255).astype(np.uint8)
-
-        Image.fromarray(png, mode="RGB").save(png_path)
-
-        print(f"[OK] {fits_path.name}")
+        if save_png:
+            output_png_dir.mkdir(parents=True, exist_ok=True)
+            png = np.clip(rgb * 255.0, 0, 255).astype(np.uint8)
+            Image.fromarray(png, mode="RGB").save(png_path)
+            print(f"[OK] {fits_path.name} (npy + png)")
+        else:
+            print(f"[OK] {fits_path.name} (npy)")
 
     except Exception as e:
         print(f"[ERROR] {fits_path.name}")
@@ -169,7 +173,7 @@ def main():
     parser.add_argument(
         "--output-png",
         default="assets/outputs-png",
-        help="Cartella output PNG"
+        help="Cartella output PNG (usata solo con --save-png)"
     )
 
     parser.add_argument(
@@ -185,21 +189,20 @@ def main():
         help="Usa lo stesso stretch per tutti i canali"
     )
 
+    parser.add_argument(
+        "--save-png",
+        action="store_true",
+        help="Salva anche il PNG stretched (richiesto da StarNet2)"
+    )
+
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)
     output_npy_dir = Path(args.output_npy)
     output_png_dir = Path(args.output_png)
 
-    output_npy_dir.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
-    output_png_dir.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    output_npy_dir.mkdir(parents=True, exist_ok=True)
+    # output_png_dir creata solo se necessario, dentro process_fits_file
 
     fits_files = (
         list(input_dir.glob("*.fits"))
@@ -217,6 +220,7 @@ def main():
             output_npy_dir,
             output_png_dir,
             linked=args.linked,
+            save_png=args.save_png,
         )
 
     print("Completato.")

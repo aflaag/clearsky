@@ -12,12 +12,13 @@ a entrambe le immagini della coppia, garantendo l'allineamento.
 
 Struttura output:
     dataset/
-        input/   npy + png  <- patch con stelle (da dare al DDPM)
-        target/  npy + png  <- patch starless   (ground truth)
+        input/   npy [+ png]  <- patch con stelle (da dare al DDPM)
+        target/  npy [+ png]  <- patch starless   (ground truth)
 
 Uso:
     python make_dataset.py
     python make_dataset.py --patch-size 256 --crops-per-image 50
+    python make_dataset.py --save-png        # salva anche le preview PNG
 """
 
 import numpy as np
@@ -88,10 +89,11 @@ def random_aug_params():
 
 
 def save_patch(patch, stem, npy_dir, png_dir):
-    """Salva patch come NPY float32 e PNG uint8."""
+    """Salva patch come NPY float32 e, se png_dir non è None, anche PNG uint8."""
     np.save(npy_dir / f"{stem}.npy", patch.astype(np.float32))
-    png = np.clip(patch * 255.0, 0, 255).astype(np.uint8)
-    Image.fromarray(png, mode="RGB").save(png_dir / f"{stem}.png")
+    if png_dir is not None:
+        png = np.clip(patch * 255.0, 0, 255).astype(np.uint8)
+        Image.fromarray(png, mode="RGB").save(png_dir / f"{stem}.png")
 
 
 def load_starless_png(png_path):
@@ -159,7 +161,8 @@ def process_file(
         print(f"  [SKIP] nessuna posizione valida per patch {patch_size}x{patch_size}")
         return 0
 
-    print(f"  Shape: {H}x{W} | Candidati: {n_candidates} | Crop: {crops_per_image}")
+    png_label = " + png" if input_png_dir is not None else ""
+    print(f"  Shape: {H}x{W} | Candidati: {n_candidates} | Crop: {crops_per_image}{png_label}")
 
     basename = npy_path.stem
     saved = 0
@@ -199,6 +202,7 @@ def main():
     parser.add_argument("--patch-size",      type=int, default=256,              help="Dimensione patch (default: 256)")
     parser.add_argument("--crops-per-image", type=int, default=50,               help="Crop per immagine (default: 50)")
     parser.add_argument("--seed",            type=int, default=42,               help="Seed (default: 42)")
+    parser.add_argument("--save-png",        action="store_true",                help="Salva anche le patch PNG (utile per debug visivo)")
     args = parser.parse_args()
 
     np.random.seed(args.seed)
@@ -209,12 +213,18 @@ def main():
     out          = Path(args.out_dir)
 
     input_npy_dir  = out / "input"  / "npy"
-    input_png_dir  = out / "input"  / "png"
     target_npy_dir = out / "target" / "npy"
-    target_png_dir = out / "target" / "png"
 
-    for d in [input_npy_dir, input_png_dir, target_npy_dir, target_png_dir]:
+    # Cartelle PNG create solo se richieste
+    input_png_dir  = out / "input"  / "png" if args.save_png else None
+    target_png_dir = out / "target" / "png" if args.save_png else None
+
+    for d in [input_npy_dir, target_npy_dir]:
         d.mkdir(parents=True, exist_ok=True)
+
+    if args.save_png:
+        input_png_dir.mkdir(parents=True, exist_ok=True)
+        target_png_dir.mkdir(parents=True, exist_ok=True)
 
     npy_files = sorted(npy_dir.glob("*.npy"))
     if not npy_files:
@@ -224,6 +234,7 @@ def main():
     print(f"Trovati {len(npy_files)} file NPY")
     print(f"Patch size : {args.patch_size}x{args.patch_size}")
     print(f"Crops/image: {args.crops_per_image}")
+    print(f"Save PNG   : {args.save_png}")
     print(f"Output     : {out}\n")
 
     total = 0

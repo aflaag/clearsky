@@ -3,7 +3,7 @@ make_masks.py
 
 Calcola le maschere di validità dai FITS raw e le salva come:
   - assets/outputs-mask/<basename>.npy  (bool, per make_dataset.py)
-  - assets/outputs-mask/<basename>.png  (debug visivo, rosso=invalido)
+  - assets/outputs-mask/preview/<basename>.png  (debug visivo, solo con --save-png)
 
 La maschera è calcolata sui dati raw FITS prima dello stretch,
 usando varianza locale con soglia 1e-05 sul canale verde.
@@ -11,7 +11,7 @@ usando varianza locale con soglia 1e-05 sul canale verde.
 Uso:
     python make_masks.py
     python make_masks.py --input-dir assets/inputs --mask-dir assets/outputs-mask
-    python make_masks.py --threshold 1e-5 --window 16 --margin 0
+    python make_masks.py --threshold 1e-5 --window 16 --margin 0 --save-png
 """
 
 import numpy as np
@@ -91,12 +91,13 @@ def save_debug_png(gray_raw, mask, out_path, max_size=1024):
     rgb_img.save(out_path)
 
 
-def process_fits(fits_path, mask_npy_dir, mask_png_dir, window, threshold, margin):
+def process_fits(fits_path, mask_npy_dir, mask_png_dir, window, threshold, margin, save_png):
     basename = fits_path.stem
     npy_out  = mask_npy_dir / f"{basename}.npy"
-    png_out  = mask_png_dir / f"{basename}.png"
+    png_out  = mask_png_dir / f"{basename}.png" if save_png else None
 
-    if npy_out.exists() and png_out.exists():
+    already_done = npy_out.exists() and (not save_png or png_out.exists())
+    if already_done:
         print(f"[SKIP] {fits_path.name}: già processato")
         return
 
@@ -120,11 +121,14 @@ def process_fits(fits_path, mask_npy_dir, mask_png_dir, window, threshold, margi
         # Salva maschera NPY
         np.save(npy_out, mask)
 
-        # Salva debug PNG
-        gray_raw = np.nan_to_num(data[1], nan=0.0)
-        save_debug_png(gray_raw, mask, png_out)
-
-        print(f"  [OK] -> {npy_out.name}, {png_out.name}")
+        # Salva debug PNG (opzionale)
+        if save_png:
+            mask_png_dir.mkdir(parents=True, exist_ok=True)
+            gray_raw = np.nan_to_num(data[1], nan=0.0)
+            save_debug_png(gray_raw, mask, png_out)
+            print(f"  [OK] -> {npy_out.name}, {png_out.name}")
+        else:
+            print(f"  [OK] -> {npy_out.name}")
 
     except Exception as e:
         print(f"  [ERROR] {e}")
@@ -139,6 +143,7 @@ def main():
     parser.add_argument("--threshold",  type=float, default=1e-5,       help="Soglia varianza (default: 1e-5)")
     parser.add_argument("--window",     type=int,   default=16,         help="Finestra varianza in pixel (default: 16)")
     parser.add_argument("--margin",     type=int,   default=0,          help="Margine perimetrale da escludere in pixel (default: 0)")
+    parser.add_argument("--save-png",   action="store_true",            help="Salva PNG di debug con overlay maschera")
     args = parser.parse_args()
 
     input_dir    = Path(args.input_dir)
@@ -146,7 +151,7 @@ def main():
     mask_png_dir = Path(args.mask_dir) / "preview"
 
     mask_npy_dir.mkdir(parents=True, exist_ok=True)
-    mask_png_dir.mkdir(parents=True, exist_ok=True)
+    # mask_png_dir creata solo se necessario, dentro process_fits
 
     fits_files = sorted(
         list(input_dir.glob("*.fits"))
@@ -159,10 +164,10 @@ def main():
         return
 
     print(f"Trovati {len(fits_files)} file FITS")
-    print(f"threshold={args.threshold:.0e} | window={args.window}px | margin={args.margin}px\n")
+    print(f"threshold={args.threshold:.0e} | window={args.window}px | margin={args.margin}px | save_png={args.save_png}\n")
 
     for f in fits_files:
-        process_fits(f, mask_npy_dir, mask_png_dir, args.window, args.threshold, args.margin)
+        process_fits(f, mask_npy_dir, mask_png_dir, args.window, args.threshold, args.margin, args.save_png)
 
     print("\nCompletato.")
 

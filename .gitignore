@@ -1,4 +1,5 @@
 assets/*
 dataset/*
-starnet/*
 model/*
+pngs/*
+starnet/*
