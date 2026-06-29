@@ -2,8 +2,8 @@
 set -e
 
 # Flag disponibili:
-#   --save-png   salva PNG di debug in astro_stretch, make_masks e make_dataset
-#   --starmask   salva le starmask durante il passaggio StarNet2
+#   --save-png  salva PNG di debug in make_masks e make_dataset
+#   --starmask  salva le starmask a 16-bit durante il passaggio StarNet2
 
 SAVE_PNG=false
 STARMASK=false
@@ -15,8 +15,8 @@ for arg in "$@"; do
 done
 
 echo "******** Starting astro_stretch.py ********"
-# --save-png sempre obbligatorio qui: StarNet2 richiede i PNG prodotti da questo step.
-python astro_stretch.py --save-png
+# --save-tiff è ora obbligatorio: genera i TIFF a 16-bit necessari a StarNet2 per evitare il banding
+python astro_stretch.py --save-tiff
 
 echo "******** Starting make_masks.py ********"
 if [ "$SAVE_PNG" = true ]; then
@@ -30,19 +30,23 @@ mkdir -p assets/outputs-starless
 if [ "$STARMASK" = true ]; then
     mkdir -p assets/outputs-starmask
 fi
-for img in assets/outputs-png/*.png; do
-    basename=$(basename "$img" .png)
-    output="assets/outputs-starless/${basename}.png"
+
+# Il ciclo ora legge i TIFF a 16-bit generati da astro_stretch.py
+for img in assets/outputs-tiff/*.tif; do
+    basename=$(basename "$img" .tif)
+    output="assets/outputs-starless/${basename}.tif"
+    
     if [ -f "$output" ]; then
         echo "[SKIP] $basename: già processato"
         continue
     fi
+    
     echo "StarNet2: $basename"
     if [ "$STARMASK" = true ]; then
         ./starnet/starnet2 \
             --input "$img" \
             --output "$output" \
-            --mask "assets/outputs-starmask/${basename}.png"
+            --mask "assets/outputs-starmask/${basename}.tif"
     else
         ./starnet/starnet2 \
             --input "$img" \

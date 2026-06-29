@@ -1,8 +1,10 @@
+import argparse
+from pathlib import Path
 from astropy.io import fits
 import numpy as np
-from pathlib import Path
-from PIL import Image
-import argparse
+# Usiamo tifffile al posto di PIL per il supporto nativo a RGB 16-bit
+import tifffile
+
 
 def adaptive_arcsinh_stretch(
     data_array,
@@ -11,31 +13,9 @@ def adaptive_arcsinh_stretch(
     white_percentile=99.7,
     linked=False,
 ):
-    """
-    Stretch arcsinh percentile-based.
-
-    Parameters
-    ----------
-    stretch : float
-        Intensità dello stretch.
-        5-8 -> conservativo
-        8-12 -> più aggressivo
-
-    black_percentile : float
-        Percentile del punto di nero.
-
-    white_percentile : float
-        Percentile del punto di bianco.
-
-    linked : bool
-        Se True usa gli stessi percentili per tutti i canali.
-    """
-
+    """Stretch arcsinh percentile-based."""
     clean = np.nan_to_num(
-        data_array,
-        nan=0.0,
-        posinf=0.0,
-        neginf=0.0
+        data_array, nan=0.0, posinf=0.0, neginf=0.0
     ).astype(np.float32)
 
     stretched = np.zeros_like(clean, dtype=np.float32)
@@ -49,19 +29,14 @@ def adaptive_arcsinh_stretch(
 
         for c in range(clean.shape[0]):
             channel = clean[c]
-
             x = (channel - black) / (white - black)
             x = np.clip(x, 0.0, 1.0)
-
             y = np.arcsinh(stretch * x)
             y /= np.arcsinh(stretch)
-
             stretched[c] = np.clip(y, 0.0, 1.0)
-
     else:
         for c in range(clean.shape[0]):
             channel = clean[c]
-
             black = np.percentile(channel, black_percentile)
             white = np.percentile(channel, white_percentile)
 
@@ -70,32 +45,30 @@ def adaptive_arcsinh_stretch(
 
             x = (channel - black) / (white - black)
             x = np.clip(x, 0.0, 1.0)
-
             y = np.arcsinh(stretch * x)
             y /= np.arcsinh(stretch)
-
             stretched[c] = np.clip(y, 0.0, 1.0)
 
     return stretched
 
+
 def process_fits_file(
     fits_path,
     output_npy_dir,
-    output_png_dir,
+    output_tiff_dir,
     linked,
-    save_png,
+    save_tiff,
 ):
     print(f"Processing {fits_path}")
-
     basename = fits_path.stem
 
     npy_path = output_npy_dir / f"{basename}.npy"
-    png_path = output_png_dir / f"{basename}.png" if save_png else None
+    tiff_path = output_tiff_dir / f"{basename}.tif" if save_tiff else None
 
     # ----------------------------
     # SKIP LOGIC
     # ----------------------------
-    already_done = npy_path.exists() and (not save_png or png_path.exists())
+    already_done = npy_path.exists() and (not save_tiff or tiff_path.exists())
     if already_done:
         print(f"[SKIP] {fits_path.name}: già processato")
         return
@@ -131,21 +104,19 @@ def process_fits_file(
         rgb = rgb[..., :3]
 
         # ----------------------------
-        # SAVE .npy
+        # SAVE .npy (Float32 in [0, 1])
         # ----------------------------
-        np.save(
-            npy_path,
-            rgb.astype(np.float32)
-        )
+        np.save(npy_path, rgb.astype(np.float32))
 
         # ----------------------------
-        # SAVE PNG (opzionale)
+        # FIX QUANTIZZAZIONE: SAVE TIFF 16-bit
         # ----------------------------
-        if save_png:
-            output_png_dir.mkdir(parents=True, exist_ok=True)
-            png = np.clip(rgb * 255.0, 0, 255).astype(np.uint8)
-            Image.fromarray(png, mode="RGB").save(png_path)
-            print(f"[OK] {fits_path.name} (npy + png)")
+        if save_tiff:
+            output_tiff_dir.mkdir(parents=True, exist_ok=True)
+            # Scaliamo a 16-bit (0 - 65535) senza perdere precisione
+            tiff_data = np.clip(rgb * 65535.0, 0, 65535).astype(np.uint16)
+            tifffile.imwrite(tiff_path, tiff_data)
+            print(f"[OK] {fits_path.name} (npy + tiff 16-bit)")
         else:
             print(f"[OK] {fits_path.name} (npy)")
 
@@ -153,63 +124,46 @@ def process_fits_file(
         print(f"[ERROR] {fits_path.name}")
         print(e)
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Batch processing FITS con stretch arcsinh adattivo."
     )
-
     parser.add_argument(
-        "--input-dir",
-        default="assets/inputs",
-        help="Cartella contenente i FITS"
+        "--input-dir", default="assets/inputs", help="Cartella contenente i FITS"
     )
-
     parser.add_argument(
-        "--output-npy",
-        default="assets/outputs-npy",
-        help="Cartella output file .npy"
+        "--output-npy", default="assets/outputs-npy", help="Cartella output file .npy"
     )
-
     parser.add_argument(
-        "--output-png",
-        default="assets/outputs-png",
-        help="Cartella output PNG (usata solo con --save-png)"
+        "--output-tiff",
+        default="assets/outputs-tiff",
+        help="Cartella output TIFF (usata solo con --save-tiff)",
     )
-
-    parser.add_argument(
-        "--sigma-factor",
-        type=float,
-        default=4.0,
-        help="Intensità dello stretch"
-    )
-
     parser.add_argument(
         "--linked",
         action="store_true",
-        help="Usa lo stesso stretch per tutti i canali"
+        help="Usa lo stesso stretch per tutti i canali",
     )
-
     parser.add_argument(
-        "--save-png",
+        "--save-tiff",
         action="store_true",
-        help="Salva anche il PNG stretched (richiesto da StarNet2)"
+        help="Salva il TIFF stretched a 16-bit per StarNet2",
     )
 
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)
     output_npy_dir = Path(args.output_npy)
-    output_png_dir = Path(args.output_png)
+    output_tiff_dir = Path(args.output_tiff)
 
     output_npy_dir.mkdir(parents=True, exist_ok=True)
-    # output_png_dir creata solo se necessario, dentro process_fits_file
 
     fits_files = (
         list(input_dir.glob("*.fits"))
         + list(input_dir.glob("*.fit"))
         + list(input_dir.glob("*.FITS"))
     )
-
     fits_files = sorted(fits_files)
 
     print(f"Trovati {len(fits_files)} file FITS dentro {input_dir}.")
@@ -218,9 +172,9 @@ def main():
         process_fits_file(
             fits_file,
             output_npy_dir,
-            output_png_dir,
+            output_tiff_dir,
             linked=args.linked,
-            save_png=args.save_png,
+            save_tiff=args.save_tiff,
         )
 
     print("Completato.")
