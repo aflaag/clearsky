@@ -122,14 +122,21 @@ def process_file(
         print(f"  [SKIP] starless non trovato: {starless_path}")
         return 0
 
-    # Cambiato il caricamento per supportare i TIFF a 16-bit
-    starless = load_starless_tiff(starless_path)  # (H, W, 3) float32
+    starless = load_starless_tiff(starless_path)
 
-    if starless.shape[:2] != (H, W):
-        print(
-            f"  [SKIP] starless shape {starless.shape[:2]} != originale {H}x{W}"
-        )
+    # --- FIX: Sanitizzazione canali prima del crop ---
+    if starless.ndim == 2:
+        # Se è in scala di grigi (1 canale), la duplichiamo su 3 canali RGB
+        starless = np.stack([starless, starless, starless], axis=-1)
+    elif starless.ndim == 3 and starless.shape[-1] == 4:
+        # Se ha un canale Alpha (4 canali), lo rimuoviamo tenendo solo RGB
+        starless = starless[:, :, :3]
+
+    # Ora il controllo di sicurezza può essere assoluto
+    if starless.shape != original.shape:
+        print(f"  [SKIP] Mismatch insanabile: starless {starless.shape} vs originale {original.shape}")
         return 0
+    # -------------------------------------------------
 
     # --- Carica maschera ---
     if not mask_path.exists():
@@ -158,15 +165,37 @@ def process_file(
 
     basename = npy_path.stem
     saved = 0
+    
+    # Soglie
+    THRESH_BLACK = 0.05
+    THRESH_VAR = 1e-5
+    MAX_RETRIES = 10  # Evita loop infiniti se l'immagine è tutta buia
 
     for i in range(crops_per_image):
-        y, x = sample_position(candidate_mask)
-        if y is None:
-            print(f"  [WARN] nessuna posizione valida al crop {i}")
+        valid_patch_found = False
+        
+        # Tenta fino a MAX_RETRIES volte di trovare una patch "interessante"
+        for attempt in range(MAX_RETRIES):
+            y, x = sample_position(candidate_mask)
+            if y is None:
+                break  # Nessuna posizione valida nell'intera maschera
+            
+            # Estrai solo l'input temporaneamente per valutarlo
+            patch_input = original[y : y + patch_size, x : x + patch_size, :]
+            
+            patch_mean = float(patch_input.mean())
+            patch_var = float(patch_input.var())
+            
+            # Condizione di validità: non troppo nera E non troppo piatta
+            if patch_mean >= THRESH_BLACK and patch_var >= THRESH_VAR:
+                valid_patch_found = True
+                break
+        
+        if not valid_patch_found:
+            print(f"  [WARN] Impossibile trovare una patch non vuota per il crop {i} dopo {MAX_RETRIES} tentativi")
             continue
 
-        # Stessa posizione per entrambe le immagini
-        patch_input = original[y : y + patch_size, x : x + patch_size, :]
+        # Se siamo qui, abbiamo coordinate (y, x) ottimali! Procediamo col target
         patch_target = starless[y : y + patch_size, x : x + patch_size, :]
 
         # Stessa augmentation per entrambe
@@ -264,7 +293,7 @@ def main():
         stem = npy_file.stem
         total += process_file(
             npy_path=npy_file,
-            starless_path=starless_dir / f"{stem}.tif",  # Cambiato da .png a .tif
+            starless_path=starless_dir / f"{stem}.tif",  # TIFF mantenuto
             mask_path=mask_dir / f"{stem}.npy",
             input_npy_dir=input_npy_dir,
             input_png_dir=input_png_dir,

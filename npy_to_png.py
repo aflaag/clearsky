@@ -16,11 +16,18 @@ def main(input_dir, output_dir):
         try:
             arr = np.load(npy_path)
 
-            # Normalizzazione opzionale
+            # Forza il tipo a float32 se non lo è
             arr = arr.astype(np.float32)
-            arr -= arr.min()
-            if arr.max() > 0:
-                arr /= arr.max()
+
+            # --- CORREZIONE CANALI (Rimuovi il commento sotto se i tuoi .npy sorgenti nascono da OpenCV/BGR) ---
+            # if arr.ndim == 3 and arr.shape[-1] == 3:
+            #     arr = arr[..., ::-1] # Converte da BGR a RGB
+
+            # NON STRETCHARE! Fai solo un clipping nel range standard [0, 1]
+            # Se i dati sono in [0, 255], dividi prima per 255.0
+            if arr.max() > 1.0:
+                arr /= 255.0
+            arr = np.clip(arr, 0.0, 1.0)
 
             output_name = os.path.splitext(filename)[0] + ".png"
             output_path = os.path.join(output_dir, output_name)
@@ -30,7 +37,7 @@ def main(input_dir, output_dir):
             else:
                 plt.imsave(output_path, arr)
 
-            print(f"Salvata: {output_path}")
+            print(f"Salvata correttamente: {output_path}") 
 
         except Exception as e:
             print(f"Errore con {filename}: {e}")

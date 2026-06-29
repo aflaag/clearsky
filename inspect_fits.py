@@ -8,28 +8,27 @@ Uso:
 python inspect_scale.py \
   --fits assets/inputs/file.fits \
   --npy assets/outputs-npy/file.npy \
-  --starless assets/outputs-starless/file.png
+  --starless assets/outputs-starless/file.tif
 """
 
 import argparse
 from pathlib import Path
 
-import numpy as np
-from PIL import Image
 import matplotlib.pyplot as plt
+import numpy as np
+import tifffile  # Sostituito PIL con tifffile per la gestione nativa dei TIFF a 16-bit
 
 
-def load_starless(path):
-    arr = np.array(Image.open(path))
+def load_starless_tiff(path):
+    """Carica un TIFF starless (16-bit o 8-bit) e lo normalizza in [0, 1]."""
+    arr = tifffile.imread(path)
 
     if arr.dtype == np.uint16:
-        arr = arr.astype(np.float32) / 65535.0
+        return arr.astype(np.float32) / 65535.0
     elif arr.dtype == np.uint8:
-        arr = arr.astype(np.float32) / 255.0
+        return arr.astype(np.float32) / 255.0
     else:
-        raise ValueError(f"dtype non supportato: {arr.dtype}")
-
-    return arr
+        raise ValueError(f"dtype non supportato dal TIFF: {arr.dtype}")
 
 
 def main():
@@ -40,7 +39,8 @@ def main():
     args = parser.parse_args()
 
     inp = np.load(args.npy).astype(np.float32)
-    tgt = load_starless(args.starless)
+    # Carica usando la nuova funzione per i file TIFF
+    tgt = load_starless_tiff(args.starless)
 
     if inp.shape != tgt.shape:
         raise ValueError(
@@ -55,7 +55,7 @@ def main():
     mask = (
         np.isfinite(inp)
         & np.isfinite(tgt)
-        & (inp <= p99)
+        & (inp <= 0.08)  # Forza una soglia bassa basata sul grafico del background
     )
 
     x = inp[mask]
@@ -80,7 +80,7 @@ def main():
     print(f"linear fit y=a*x+b:")
     print(f"    a = {a2:.6f}")
     print(f"    b = {b2:.6e}")
-    print(f"correlation:              {corr:.6f}")
+    print(f"correlation:               {corr:.6f}")
 
     if abs(a - 1.0) < 0.05:
         print("\n✅ Nessuna evidenza di riscalatura globale.")

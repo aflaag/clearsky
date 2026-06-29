@@ -3,3 +3,7 @@ dataset/*
 model/*
 pngs/*
 starnet/*
+
+dataset.zip
+
+datasetBAK/*
