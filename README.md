@@ -4,7 +4,7 @@
 
 ### Star Removal
 
-- usare la starmask per pesare la distribuzione di star injection
+- migliorare l'appiccicazione delle stelle
 
 ### Denoising
 
