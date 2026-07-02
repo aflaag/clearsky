@@ -187,7 +187,8 @@ def process_file(
             patch_var = float(patch_input.var())
             
             # Condizione di validità: non troppo nera E non troppo piatta
-            if patch_mean >= THRESH_BLACK and patch_var >= THRESH_VAR:
+            # if patch_mean >= THRESH_BLACK and patch_var >= THRESH_VAR:
+            if patch_var >= THRESH_VAR:
                 valid_patch_found = True
                 break
         
