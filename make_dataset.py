@@ -103,13 +103,13 @@ def process_file(
 ):
     print(f"Processing {npy_path.name}")
 
-    # --- Carica immagine originale (con stelle) ---
-    original = np.load(npy_path)  # (H, W, 3) float32
-    if original.ndim != 3 or original.shape[-1] != 3:
-        print(f"  [SKIP] shape inattesa NPY: {original.shape}")
+    # --- Carica immagine input (sintetica con stelle) ---
+    synthetic = np.load(npy_path)  # (H, W, 3) float32
+    if synthetic.ndim != 3 or synthetic.shape[-1] != 3:
+        print(f"  [SKIP] shape inattesa NPY sintetico: {synthetic.shape}")
         return 0
 
-    H, W, _ = original.shape
+    H, W, _ = synthetic.shape
 
     if H < patch_size or W < patch_size:
         print(
@@ -133,8 +133,8 @@ def process_file(
         starless = starless[:, :, :3]
 
     # Ora il controllo di sicurezza può essere assoluto
-    if starless.shape != original.shape:
-        print(f"  [SKIP] Mismatch insanabile: starless {starless.shape} vs originale {original.shape}")
+    if starless.shape != synthetic.shape:
+        print(f"  [SKIP] Mismatch insanabile: starless {starless.shape} vs input sintetico {synthetic.shape}")
         return 0
     # -------------------------------------------------
 
@@ -181,7 +181,7 @@ def process_file(
                 break  # Nessuna posizione valida nell'intera maschera
             
             # Estrai solo l'input temporaneamente per valutarlo
-            patch_input = original[y : y + patch_size, x : x + patch_size, :]
+            patch_input = synthetic[y : y + patch_size, x : x + patch_size, :]
             
             patch_mean = float(patch_input.mean())
             patch_var = float(patch_input.var())
@@ -214,10 +214,12 @@ def process_file(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Crea coppie (input_con_stelle, starless) per training DDPM."
+        description="Crea coppie (input_sintetico_con_stelle, starless) per training DDPM."
     )
     parser.add_argument(
-        "--npy-dir", default="assets/outputs-npy", help="NPY originali con stelle"
+        "--npy-dir", 
+        default="assets/outputs-npy-synthetic", 
+        help="NPY con stelle sintetiche generati da inject_stars.py"
     )
     parser.add_argument(
         "--starless-dir",
@@ -282,7 +284,7 @@ def main():
         print(f"Nessun file .npy trovato in {npy_dir}")
         return
 
-    print(f"Trovati {len(npy_files)} file NPY")
+    print(f"Trovati {len(npy_files)} file NPY (Sintetici)")
     print(f"Patch size : {args.patch_size}x{args.patch_size}")
     print(f"Crops/image: {args.crops_per_image}")
     print(f"Save PNG   : {args.save_png}")
