@@ -1,4 +1,5 @@
 import argparse
+import csv
 import json
 from pathlib import Path
 
@@ -96,6 +97,7 @@ def main():
 
     metadata = []
     densities = []
+    star_counts = []  # Lista per il nuovo output CSV
     star_id = 0
 
     for npy_path in npy_files:
@@ -119,6 +121,9 @@ def main():
             original, starmask, pixel_mask,
             min_area=args.min_area, mask_thresh=args.mask_thresh, pad=args.pad,
         )
+        
+        # Aggiungiamo il conteggio alla lista per il CSV
+        star_counts.append([stem, len(stars)])
 
         valid_area = int(pixel_mask.sum()) if pixel_mask is not None else original.shape[0] * original.shape[1]
         if valid_area > 0:
@@ -139,14 +144,23 @@ def main():
         print("Nessuna stella estratta. Verifica che pipeline.sh sia stato lanciato con --starmask.")
         return
 
+    # Salvataggio Metadata
     with open(out_dir / "metadata.json", "w") as f:
         json.dump(metadata, f)
     with open(out_dir / "field_density.json", "w") as f:
         json.dump(densities, f)
 
+    # Salvataggio CSV Conteggio Stelle
+    csv_path = out_dir / "star_counts.csv"
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["nome_file", "numero_stelle"])
+        writer.writerows(star_counts)
+
     densities_arr = np.array(densities)
     print(f"\nLibreria completata: {star_id} stelle da {len(npy_files)} immagini")
     print(f"Densita' media: {densities_arr.mean():.6f} stelle/px^2 (min {densities_arr.min():.6f}, max {densities_arr.max():.6f})")
+    print(f"File CSV generato: {csv_path}")
 
 
 if __name__ == "__main__":

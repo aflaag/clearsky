@@ -4,7 +4,7 @@
 
 ### Star Removal
 
-- fatti rifare lo star removal da claude perché va fatto bootstrapping
+- usare la starmask per pesare la distribuzione di star injection
 
 ### Denoising
 
