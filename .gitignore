@@ -1,9 +1,14 @@
+*BAK/*
+
 assets/*
+
 dataset/*
+dataset_SR/*
+
 model/*
 pngs/*
+
+graxpert/*
 starnet/*
 
 dataset.zip
-
-datasetBAK/*
