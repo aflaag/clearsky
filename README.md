@@ -14,14 +14,17 @@
 - [ ] Star Removal
   - [x] dataset
   - [ ] DPPM trained
+  - [ ] mettere modello in repository
 
 - [ ] Image Restoration
-  - [ ] dataset
+  - [x] dataset
   - [ ] DDPM trained
+  - [ ] mettere modello in repository
 
 - [ ] Super Resolution
   - [x] dataset
   - [ ] DDPM trained
+  - [ ] mettere modello in repository
 
 ### Model merging
 
