@@ -51,11 +51,11 @@ python build_star_library.py
 echo "******** Starting inject_stars.py ********"
 python inject_stars.py
 
-echo "******** Starting make_dataset.py ********"
+echo "******** Starting make_dataset_sr.py ********"
 if [ "$SAVE_PNG" = true ]; then
-    python make_dataset.py --crops-per-image 5 --save-png
+    python make_dataset_sr.py --crops-per-image 5 --save-png
 else
-    python make_dataset.py --crops-per-image 5
+    python make_dataset_sr.py --crops-per-image 5
 fi
 
-echo "******** Pipeline completata ********"
+echo "******** Pipeline SR completata ********"

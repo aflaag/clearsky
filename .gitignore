@@ -2,7 +2,7 @@
 
 assets/*
 
-dataset/*
+dataset*/*
 dataset_SR/*
 
 model/*
