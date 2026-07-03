@@ -1,25 +1,31 @@
 # clearsky
 
+## TODO
+
+- [ ] levare file inutili ed organizzare cartella
+- [ ] sistemare branches
+- [ ] pulire `astro_stretch.py` e `make_dataset.py` (ed eventualmente altro) da rimanenze denoising
+- [ ] pulire il codice da commenti + refactoring
+
 ## Roadmap
 
 ### DPPM
 
 - [ ] Star Removal
   - [x] dataset
-    - UAR sembra funzionare, al massimo aggiungi conto stelle fedele e pesa la distribuzione con cui viene fatta la pool
   - [ ] DPPM trained
 
-- [ ] Denoising
+- [ ] Image Restoration
   - [ ] dataset
-    - controllare script `generate_ground_truth.py` + proposta pipeline chat
-    - non funziona noise injection secondo me
   - [ ] DDPM trained
 
 - [ ] Super Resolution
-  - [ ] dataset
+  - [x] dataset
   - [ ] DDPM trained
 
 ### Model merging
+
+- studiare letteratura
 
 TODO: ?
 
@@ -27,7 +33,7 @@ TODO: ?
 
 TODO: ?
 
-idee:
-    - spiegare processo creazione dataset per ogni dataset
-    - spiegare arch ddpm
-    - forse ddpm star removal performa meglio di starnet!!!
+- idee:
+  - spiegare processo creazione dataset per ogni dataset
+  - spiegare arch ddpm
+  - forse ddpm star removal performa meglio di starnet!!!
