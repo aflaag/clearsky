@@ -4,7 +4,7 @@
 
 ### Star Removal
 
-- fatti rifare lo star removal da claude perché va fatto bootstrapping
+- UAR sembra funzionare, al massimo aggiungi conto stelle fedele e pesa la distribuzione con cui viene fatta la pool
 
 ### Denoising
 
