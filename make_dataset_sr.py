@@ -233,8 +233,8 @@ def main():
     )
     parser.add_argument(
         "--out-dir",
-        default="dataset",
-        help="Cartella output (default: dataset)",
+        default="dataset_sr",
+        help="Cartella output (default: dataset_sr)",
     )
     parser.add_argument(
         "--patch-size",

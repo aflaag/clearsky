@@ -140,13 +140,21 @@ def correct_pixels(data_chw, bad_per_ch, medians):
 # --------------------------------------------------------------------------
 
 def save_as_tiff(image, path):
-    """Salva un'immagine (H,W,C) o (C,H,W) come TIFF float32."""
+    """Salva un'immagine come TIFF RGB uint16 compatibile con StarNet2."""
     if not HAS_TIFFFILE:
         raise RuntimeError("tifffile non installato: pip install tifffile")
+
     img = image
+
+    # Converti da CHW a HWC se necessario
     if img.ndim == 3 and img.shape[0] in (1, 3, 4) and img.shape[0] != img.shape[-1]:
-        img = np.transpose(img, (1, 2, 0))  # tifffile vuole (H,W,C) per RGB
-    tifffile.imwrite(str(path), img.astype(np.float32))
+        img = np.transpose(img, (1, 2, 0))
+
+    # Float [0,1] -> uint16 [0,65535]
+    img = np.clip(img, 0.0, 1.0)
+    img = np.round(img * 65535.0).astype(np.uint16)
+
+    tifffile.imwrite(str(path), img)
 
 
 def save_mask_as_tiff(bad_mask, path):

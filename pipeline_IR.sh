@@ -32,4 +32,4 @@ else
     python make_dataset_ir.py --crops-per-image 5
 fi
 
-echo "******** Pipeline SR completata ********"
+echo "******** Pipeline IR completata ********"

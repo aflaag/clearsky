@@ -152,7 +152,7 @@ def main():
                         help="Variazione casuale di luminosita' per stamp")
     parser.add_argument("--pool-size", type=int, default=5000,
                         help="Numero di stelle da pre-caricare in RAM dal dataset complessivo")
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seed", type=int, default=43)
     args = parser.parse_args()
 
     np.random.seed(args.seed)
