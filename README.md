@@ -14,23 +14,26 @@
 - [ ] Star Removal
   - [x] dataset
   - [ ] DPPM trained
-  - [ ] mettere modello in repository
 
 - [ ] Image Restoration
   - [x] dataset
   - [ ] DDPM trained
-  - [ ] mettere modello in repository
 
 - [ ] Super Resolution
   - [x] dataset
   - [ ] DDPM trained
-  - [ ] mettere modello in repository
 
 ### Model merging
 
-- studiare letteratura
-
-TODO: ?
+- [ ] creare $\theta_0$ trainando un DDPM su `dataset_sr/target + datset_ir/target + dataset_su/target` con identità e prob $p$ che sporca la condizione
+- [ ] fine-tuning DDPM SR trainando su `dataset_sr`
+- [ ] fine-tuning DDPM IR trainando su `dataset_ir`
+- [ ] fine-tuning DDPM SU trainando su `dataset_su`
+- [ ] creazione modello con task arithmetic
+- [ ] creazione modello TIES
+- [ ] creazione modello DARE
+- [ ] creazione modello DARE-TIES
+- [ ] creazione modello RegMean
 
 ### Report
 
