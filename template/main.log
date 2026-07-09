@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.6.22)  9 JUL 2026 21:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.6.22)  9 JUL 2026 23:04
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -392,12 +392,8 @@ Package grfext Info: Graphics extension search list:
  (/usr/share/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\@ifnextchar' on input line 44.
-
 LaTeX Font Info:    Trying to load font information for U+msa on input line 46.
-(/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
+ (/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
 LaTeX Font Info:    Trying to load font information for U+msb on input line 46.
@@ -414,117 +410,82 @@ File: omlptm.fd
 LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <9> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 46.
 
-Underfull \hbox (badness 1831) in paragraph at lines 56--57
-\OT1/ptm/m/n/10 cor-rec-tions ap-plied in se-quence: re-mov-ing point-like
- []
-
-
-Underfull \hbox (badness 1406) in paragraph at lines 58--59
-[]\OT1/ptm/m/n/10 Model merg-ing -- com-bin-ing in-de-pen-dently fine-tuned
- []
-
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 62.
-(/usr/share/texmf-dist/tex/latex/psnfss/ot1pcr.fd
-File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
-)
-Underfull \hbox (badness 4217) in paragraph at lines 70--71
+Underfull \hbox (badness 4217) in paragraph at lines 71--72
  []\OT1/ptm/b/n/10 Diffusion mod-els. \OT1/ptm/m/n/10 De-nois-ing Dif-fu-sion Prob-a-bilis-tic
  []
 
-[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
-
-
-]
-Underfull \hbox (badness 1661) in paragraph at lines 81--82
- []\OT1/ptm/b/n/10 Source im-agery. \OT1/ptm/m/n/10 We start from a man-u-ally cu-rated
- []
-
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 97--98
-[][]\OT1/ptm/b/n/10 [TODO: MANCA SP-IE-GARE IL DATASET
- []
-
-
-Underfull \hbox (badness 3323) in paragraph at lines 102--102
-\OT1/ptm/b/n/9 HLA mo-saics to the three per-task (con-di-tion, tar-get)
- []
-
-LaTeX Font Info:    Trying to load font information for OMS+ptm on input line 111.
-(/usr/share/texmf-dist/tex/latex/psnfss/omsptm.fd
-File: omsptm.fd 
-)
-LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 111.
-
-Underfull \hbox (badness 2197) in paragraph at lines 111--112
-\OT1/ptm/m/n/10 de-graded im-age back to its clean ver-sion. Tar-gets
- []
-
-
-Underfull \hbox (badness 1038) in paragraph at lines 111--112
-\OT1/ptm/m/n/10 type, so that $\OML/cmm/m/it/10 ^^R[]$ \OT1/ptm/m/n/10 does not learn any im-plicit content-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 113--114
- []\OT1/ptm/b/n/10 Architecture. \OT1/ptm/m/n/10 The fol-low-ing ar-chi-tec-ture re-mains
- []
-
-
-Underfull \hbox (badness 4505) in paragraph at lines 113--114
-\OT1/ptm/m/n/10 U-Net ar-chi-tec-ture (\OT1/ptm/m/it/10 Im-prove-dUNet\OT1/ptm/m/n/10 ) that pro-cesses a
- []
-
-
-Underfull \hbox (badness 1484) in paragraph at lines 113--114
-\OT1/ptm/m/n/10 6-channel ten-sor ob-tained by con-cate-nat-ing the noisy
+Underfull \hbox (badness 1502) in paragraph at lines 76--77
+[]\OT1/ptm/m/n/10 Prior work tar-gets mainly clas-si-fiers and LLMs, and
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [3
-pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.130 
-      ]
-Underfull \hbox (badness 8094) in paragraph at lines 161--161
-[]\OT1/ptm/m/n/9 Raw MSE, two-stage
+ [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}
+
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 102--103
+[][]\OT1/ptm/b/n/10 [TODO: MANCA SP-IE-GARE IL DATASET
+ []
+
+LaTeX Font Info:    Trying to load font information for OMS+ptm on input line 117.
+(/usr/share/texmf-dist/tex/latex/psnfss/omsptm.fd
+File: omsptm.fd 
+)
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 117.
+
+Underfull \hbox (badness 2401) in paragraph at lines 117--118
+[]\OT1/ptm/m/n/10 More specif-i-cally, $\OML/cmm/m/it/10 ^^R[]$ \OT1/ptm/m/n/10 is trained to re-con-struct clean
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 164--164
+Underfull \hbox (badness 2781) in paragraph at lines 117--118
+\OT1/ptm/m/n/10 im-ages from syn-thet-i-cally de-graded in-puts. Degra-
+ []
+
+
+Underfull \hbox (badness 2903) in paragraph at lines 117--118
+\OT1/ptm/m/n/10 da-tions con-sist of $\OT1/cmr/m/n/10 1$\OT1/ptm/m/n/10 --$\OT1/cmr/m/n/10 3$ \OT1/ptm/m/n/10 ran-domly se-lected op-er-a-tions
+ []
+
+[2]
+Underfull \hbox (badness 1237) in paragraph at lines 145--146
+\OT1/ptm/m/n/10 er-ror rel-a-tive to its own single-task ex-pert, along-side
+ []
+
+
+Underfull \hbox (badness 6592) in paragraph at lines 161--161
+[]\OT1/ptm/m/n/9 Normalised MSE (pro-
+ []
+
+
+Underfull \hbox (badness 5446) in paragraph at lines 162--162
+[]\OT1/ptm/m/n/9 Normalised MSE, two-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 163--163
 []\OT1/ptm/m/n/9 Perceptual Z-score
  []
 
-
-Overfull \hbox (27.20035pt too wide) in paragraph at lines 176--185
- [][] 
- []
-
-[4
+[3
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.189 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.189 
+l.246 
       ]
-Underfull \hbox (badness 1024) in paragraph at lines 220--221
-\OT1/ptm/b/n/10 (6) fu-ture work: learned/optimized merg-ing co-ef-fi-
- []
-
-(./main.bbl [5
-pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.43 
-     ]) [6
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 271.
+ (/usr/share/texmf-dist/tex/latex/psnfss/ts1ptm.fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
+) (./main.bbl
+LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 26.
+ (/usr/share/texmf-dist/tex/latex/psnfss/ot1pcr.fd
+File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
+) [4]) [5
 
 ] (./main.aux)
  ***********
@@ -535,18 +496,18 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 11318 strings out of 469463
- 168945 string characters out of 5469428
- 592488 words of memory out of 5000000
- 39742 multiletter control sequences out of 15000+600000
- 649757 words of font info for 85 fonts, out of 8000000 for 9000
+ 11332 strings out of 469463
+ 169178 string characters out of 5469428
+ 596327 words of memory out of 5000000
+ 39760 multiletter control sequences out of 15000+600000
+ 649556 words of font info for 84 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 75i,11n,79p,1803b,611s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (6 pages, 207307 bytes).
+ 75i,11n,79p,1224b,611s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (5 pages, 168369 bytes).
 PDF statistics:
- 201 PDF objects out of 1000 (max. 8388607)
- 159 compressed objects within 2 object streams
- 51 named destinations out of 1000 (max. 500000)
+ 174 PDF objects out of 1000 (max. 8388607)
+ 139 compressed objects within 2 object streams
+ 45 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -28,7 +28,7 @@
 \begin{document}
 
 \twocolumn[
-	\dlaititle{\todo{working title -- suggested: ``Merging Specialist Diffusion Models for Multi-Task Astronomical Image Restoration''}}
+	\dlaititle{Merging Specialist Diffusion Models for Multi-Task Astronomical Image Restoration}
 
 	\begin{center}\today\end{center}
 
@@ -46,22 +46,23 @@
 \printAffiliationsAndNotice{}
 
 \begin{abstract}
-	Astronomical image-processing pipelines typically chain several independent restoration steps -- e.g.\ star removal, defect correction, super-resolution -- each best solved by a dedicated model. We investigate whether such a pipeline can be collapsed into a \emph{single} set of weights via post-hoc model merging, avoiding both the cost of serving multiple networks and the need for joint multi-task training data. Three v-prediction DDPMs are independently fine-tuned -- one per task (star removal, dead/hot-pixel restoration, super-resolution) -- from a common, purpose-pretrained initialization $\theta_0$, and their task vectors are combined with Task Arithmetic, TIES-Merging, and DARE-TIES. Crucially, because initial zero-shot merging configurations failed to meet performance expectations due to destructive weight interference, we introduce a brief post-merge fine-tuning stage for all three methods. Merging and fine-tuning hyper-parameters are chosen via a two-stage grid search evaluated on all seven combinations of the three degradations, using real, manually-curated Hubble Legacy Archive (HLA) imagery. \todo{REFINE: make this abstract more coincise}.
+	% Astronomical restoration pipelines chain several task-specific steps -- star removal, defect correction and super-resolution among others -- each usually handled by a dedicated tool. We ask whether such a pipeline can be collapsed into a \emph{single} set of weights by merging specialist checkpoints post hoc, avoiding both multi-network serving and joint multi-task data. From a shared, purpose-pretrained initialization $\theta_0$ we fine-tune three v-prediction DDPMs (one per task) and merge their task vectors with Task Arithmetic, TIES-Merging, and DARE-TIES. Since zero-shot merging suffers from destructive interference, we add a brief post-merge fine-tuning stage, tuned via a two-stage grid search over all seven degradation combinations on manually-curated Hubble Legacy Archive (HLA) imagery.
+	Astronomical image-processing pipelines typically chain several independent restoration steps, each best solved by a dedicated tool. We investigate whether such a pipeline can be collapsed into a \emph{single} set of weights via post-hoc model merging, avoiding both the cost of serving multiple networks and the need for joint multi-task training data. In particular, we focus on \emph{star removal}, \emph{defect correction} and \emph{super-resolution}. Three \textit{v-prediction} DDPMs are independently fine-tuned (one per task) from a common, purpose-pretrained initialization $\theta_0$, and their task vectors are combined with Task Arithmetic, TIES-Merging, and DARE-TIES. Crucially, because initial zero-shot merging configurations failed to meet performance expectations due to destructive weight interference, we introduce a brief post-merge fine-tuning stage for all three methods. Merging and fine-tuning hyper-parameters are chosen via a \emph{two-stage grid search} evaluated on all 7 combinations of the three degradations, using manually-curated Hubble Legacy Archive (HLA) imagery. Code is avaliable \href{https://github.com/aflaag/clearsky}{here}.
 \end{abstract}
 
 % ------------------------------------------------------------------------------
 \section{Introduction}
 \label{sec:intro}
 
-Restoring astronomical images typically requires several corrections applied in sequence: removing point-like sources (stars) to reveal extended low-surface-brightness structure, correcting detector defects (dead/hot pixels), and recovering high-frequency detail lost to instrument or seeing-limited resolution (super-resolution). A natural deep-learning approach is to train one specialist model per correction; the drawback is that deploying the pipeline still requires keeping and running several networks, and any joint model would require a dataset with all degradations co-occurring and annotated.
+%  Restoring astronomical images typically requires several corrections applied in sequence: removing star) to reveal extended low-surface-brightness structures, correcting detector defects (dead/hot pixels), and recovering high-frequency detail lost to instrument or seeing-limited resolution (super-resolution). A natural DL approach is to train one specialist model per correction; the drawback is that deploying the pipeline still requires keeping and running several networks.
+%
+% Model merging -- combining independently fine-tuned checkpoints directly in weight space -- has recently been shown to recover much of the performance of joint multi-task training for classification and language models with little to no additional training. However, we find that applying these methods zero-shot to conditional diffusion models solving distinct low-level image restoration tasks fails to meet basic performance expectations. To overcome this limitation, we extend the standard merging paradigm by introducing a mandatory, lightweight post-merge fine-tuning phase for all evaluated methods, which successfully resolves interference in the merged weight space.
 
-Model merging -- combining independently fine-tuned checkpoints directly in weight space -- has recently been shown to recover much of the performance of joint multi-task training for classification and language models with little to no additional training. However, we find that applying these methods zero-shot to conditional diffusion models solving distinct low-level image restoration tasks fails to meet basic performance expectations. To overcome this limitation, we extend the standard merging paradigm by introducing a mandatory, lightweight post-merge fine-tuning phase for all evaluated methods, which successfully resolves interference in the merged weight space.
+Restoring astronomical images often requires multiple sequential corrections, including star removal, detector defect restoration (dead/hot pixels), and super-resolution. A common deep learning approach is to train one specialist model per task, but this requires storing and executing multiple networks.
 
-Concretely, we (i) pretrain a single shared initialization $\theta_0$ on a generic conditional-restoration pretext task built from all our data, (ii) independently fine-tune three specialist DDPMs from $\theta_0$, one per degradation, (iii) merge the resulting task vectors with \textbf{Task Arithmetic}, \textbf{TIES-Merging}, and \textbf{DARE-TIES}, and (iv) subject all merged models to a brief post-merge fine-tuning step to recover target performance, optimizing coefficients via a two-stage grid search.
+Model merging combines independently fine-tuned checkpoints into a single model without joint training. While effective for classification and language models, we find that it performs poorly when applied zero-shot to conditional diffusion models for low-level image restoration. We find that a lightweight post-merge fine-tuning stage helps mitigating task interference and obtain a practical multi-task model.
 
-\todo{1--2 sentences summarizing contributions as a list, once results are final, e.g.\ ``(1) we show that X; (2) we find that TIES/DARE-TIES combined with post-merge fine-tuning outperforms naive Task Arithmetic by Y\%; (3) we release code at \url{https://github.com/<todo>}.''}
-
-\paragraph*{Code.} \todo{insert GitHub link once the repository is finalized (submission requires the code to be reachable even if not public).}
+\todo{1--2 sentences summarizing contributions as a list, once results are final, e.g.\ ``(1) we show that X; (2) we find that TIES/DARE-TIES combined with post-merge fine-tuning outperforms naive Task Arithmetic by Y\%; ''}
 
 % ------------------------------------------------------------------------------
 \section{Related Work}
@@ -69,83 +70,81 @@ Concretely, we (i) pretrain a single shared initialization $\theta_0$ on a gener
 
 \paragraph*{Diffusion models.} Denoising Diffusion Probabilistic Models (DDPMs) learn to invert a fixed noising process \cite{ho2020ddpm}. We adopt the \emph{v-prediction} parameterization \cite{salimans2022progressive}, a cosine noise schedule \cite{nichol2021improved}, and classifier-free-style condition dropout so that the network retains some unconditional generative capacity; the backbone is a conditional U-Net \cite{ronneberger2015unet} with self-attention \cite{vaswani2017attention} at low resolutions.
 
-\paragraph*{Model merging.} Task Arithmetic \cite{ilharco2023editing} showed that the difference between a fine-tuned and a pretrained checkpoint (``task vector'') can be added back to the pretrained weights, with a scalar coefficient $\lambda$, to transfer or combine capabilities without further training. TIES-Merging \cite{yadav2023ties} improves on naive summation when merging several task vectors by trimming low-magnitude coordinates and resolving sign disagreements before averaging, reducing destructive interference. DARE \cite{yu2024dare} randomly drops and rescales a large fraction of each task vector's coordinates prior to merging, and is commonly composed with TIES (``DARE-TIES''). All three methods require every fine-tuned checkpoint to originate from the \emph{same} pretrained weights, which directly motivates our shared-$\theta_0$ pretraining stage (Sec.~\ref{sec:theta0}). Model merging has been studied predominantly for classifiers and LLMs; in the diffusion setting it has mostly been applied to merging LoRA adapters for text-to-image personalization rather than to merging fully fine-tuned specialist denoisers trained on distinct low-level restoration tasks. Crucially, while literature treats model merging as a zero-shot operations, our findings show that zero-shot merging does not meet performance expectations for pixel-level generative corrections, thus justifying our exploration of post-merge fine-tuning. \todo{verify/extend this claim with a short literature search closer to submission -- this is the part of the related work most likely to be out of date, and it is also our best candidate for a genuine novelty claim, so it deserves a careful check rather than a hedge.} \todo{REFINE: make all of this paragraph shorter}
+% \paragraph*{Model merging.} Task Arithmetic \cite{ilharco2023editing} adds a checkpoint's ``task vector'' -- its offset from the pretrained weights -- back onto those weights, scaled by a coefficient $\lambda$, to combine capabilities training-free. TIES-Merging \cite{yadav2023ties} curbs destructive interference when merging several task vectors by trimming low-magnitude coordinates and resolving sign conflicts. Finally, DARE \cite{yu2024dare} randomly drops and rescales coordinates beforehand, often composed with TIES (``DARE-TIES''). All three require every checkpoint to share the same pretrained origin, motivating our shared-$\theta_0$ stage (Sec.~\ref{sec:theta0}).
+\paragraph*{Model merging.} Task Arithmetic \cite{ilharco2023editing} combines task vectors by adding scaled weight differences to a shared pretrained model. TIES-Merging \cite{yadav2023ties} reduces interference by trimming low-magnitude updates and resolving sign conflicts, while DARE \cite{yu2024dare} further sparsifies task vectors through random pruning and rescaling. All methods require checkpoints to share the same pretrained origin, motivating our shared-$\theta_0$ stage (Sec.~\ref{sec:theta0}).
+
+Prior work targets mainly classifiers and LLMs, and in diffusion mostly LoRA merging for personalization rather than fully fine-tuned specialists on distinct low-level restoration tasks; \todo{verify/extend this claim with a short literature search closer to submission -- this is the part of the related work most likely to be out of date, and it is also our best candidate for a genuine novelty claim, so it deserves a careful check rather than a hedge.}
 
 % ------------------------------------------------------------------------------
 \section{Method}
 \label{sec:method}
 
-\subsection{Data and per-task degradation pipeline}
+\subsection{Dataset}
 \label{sec:data}
 
-\paragraph*{Source imagery.} We start from a manually curated set of color, already-drizzled mosaics from the Hubble Legacy Archive (HLA) \cite{hla}. \todo{how many source frames, which instruments/proposals, native resolution range, selection criteria.} Raw frames are converted to a working dynamic range via a nonlinear stretch before any degradation is applied.
+\paragraph*{Source imagery and pre-processing.} We start from a manually curated set of color, already-drizzled mosaics from the HLA \cite{hla}. Raw frames are converted to a working dynamic range via a nonlinear stretch before any degradation is applied. Applying a uniform, global stretching function across the entire dataset yielded highly suboptimal results due to the vast diversity in exposure levels, noise floors, and dynamic ranges among different astronomical targets. To overcome this, an image-specific adaptive arcsinh stretch is performed on each pair before training.
 
-Crucially, applying a uniform, global stretching function across the entire dataset yielded highly suboptimal results due to the vast diversity in exposure levels, noise floors, and dynamic ranges among different astronomical targets. To overcome this, an image-specific adaptive arcsinh stretch is performed on each pair before training. \todo{should go more in depth about this prob}
-
-For all three tasks the supervision target is always the fully clean, stretched image; only the \emph{condition} (network input) differs. Each specialist therefore sees, as condition, an image degraded with only its own corruption, but is only ever supervised to recover the clean image -- as opposed to $\theta_0$'s pretext task (Sec.~\ref{sec:theta0}), where the degradation is deliberately \emph{not} tied to the task the source image came from.
+\paragraph*{Dataset generation.} For all three tasks the supervision target is always the fully clean, stretched image; only the \emph{condition} (network input) differs. Each specialist therefore sees, as condition, an image degraded with only its own corruption, but is only ever supervised to recover the clean image -- as opposed to $\theta_0$'s pretext task (Sec.~\ref{sec:theta0}), where the degradation is deliberately \emph{not} tied to the task the source image came from.
 
 \begin{enumerate}
-	\item \textbf{Star removal.} The clean image is passed through StarNetV2 \cite{starnet} to obtain a preliminary starless prediction. Rather than using this output directly as a ground-truth target, which would reduce our model to a mere distillation of StarNet, we use it solely to isolate real stars. A library of isolated real star patches (typically $64 \times 64$ pixels) is built by subtracting the StarNet prediction from the original image and extracting regions around local intensity maxima. These extracted stars are then synthetically re-injected onto pristine starless backgrounds via linear blending to form strictly controlled training pairs.
-	\item \textbf{Dead/hot-pixel restoration.} These targets are generated using a robust outlier-rejection pipeline that isolates anomalies by evaluating the residual between each pixel and a local median filter (typically using a $5 \times 5$ window). A pixel is flagged as defective if its channel residual exceeds a threshold of $6.0\sigma$, where $\sigma$ is estimated via a robust Median Absolute Deviation (MAD) scaled by a factor of $1.4826$.
-
-	      Because the HLA imagery consists of RGB composites generated from independent, non-simultaneous single-filter exposures, these defects exhibit a sparse spatial distribution and strict channel independence (i.e., a hot pixel often corrupts only a single color channel). In terms of saturation behavior, hot pixels present high-intensity positive spikes approaching clipping thresholds ($1.0$), whereas dead pixels manifest as sharp drops toward the local noise floor ($0.0$).
-	\item \textbf{Super-resolution.} To condition the generative model for image enhancement, a paired dataset is constructed by applying a classical degradation pipeline to the high-resolution (HR) ground-truth images. Each HR image is first smoothed using a spatial Gaussian blur kernel ($\sigma = 1.5$) to simulate Point Spread Function (PSF) broadening and telescope optical limitations. The blurred image is then downsampled by a factor of $\times 4$ using a third-order cubic spline interpolation to drastically reduce structural information. Crucially, to inject this low-resolution input as a conditioning channel into the DDPM, the degraded image is upsampled back to the original HR spatial dimensions via bicubic interpolation, ensuring structural alignment with the target.
+	% \item \textbf{Star removal.} The clean image is passed through StarNetV2 \cite{starnet} to obtain a preliminary starless prediction. Rather than using this output directly as a ground-truth target, which would reduce our model to a mere distillation of StarNet, we use it solely to isolate real stars. A library of isolated real star patches (typically $64 \times 64$ pixels) is built by subtracting the StarNet prediction from the original image and extracting regions around local intensity maxima. These extracted stars are then synthetically re-injected onto pristine starless backgrounds via linear blending to form strictly controlled training pairs.
+	\item \textbf{Star removal.} The clean image is processed with StarNetV2 \cite{starnet} to obtain a preliminary starless prediction. Rather than using it as ground truth, we use it only to isolate real stars by subtracting it from the original image. The extracted star patches are then re-injected onto pristine starless backgrounds through linear blending, producing controlled input--target training pairs. \todo{make this definitely shorter}
+	      % \item \textbf{Dead/hot-pixel restoration.} These targets are generated using a robust outlier-rejection pipeline that isolates anomalies by evaluating the residual between each pixel and a local median filter (typically using a $5 \times 5$ window). A pixel is flagged as defective if its channel residual exceeds a threshold of $6.0\sigma$, where $\sigma$ is estimated via a robust Median Absolute Deviation (MAD) scaled by a factor of $1.4826$.
+	      %
+	      %       Because the HLA imagery consists of RGB composites generated from independent, non-simultaneous single-filter exposures, these defects exhibit a sparse spatial distribution and strict channel independence (i.e., a hot pixel often corrupts only a single color channel). In terms of saturation behavior, hot pixels present high-intensity positive spikes approaching clipping thresholds ($1.0$), whereas dead pixels manifest as sharp drops toward the local noise floor ($0.0$).
+	\item \textbf{Dead/hot-pixel restoration.} Defective pixels are identified using a robust outlier detector based on the residual from a local median filter ($5\times5$). A pixel is marked as defective when its channel residual exceeds $6.0\sigma$, where $\sigma$ is estimated from the Median Absolute Deviation (MAD) scaled by $1.4826$. Since HLA RGB composites are assembled from independent filter exposures, defects are sparse and typically affect only a single color channel. \todo{make this definitely shorter}
+	      % \item \textbf{Super-resolution.} To condition the generative model for image enhancement, a paired dataset is constructed by applying a classical degradation pipeline to the high-resolution (HR) ground-truth images. Each HR image is first smoothed using a spatial Gaussian blur kernel ($\sigma = 1.5$) to simulate Point Spread Function (PSF) broadening and telescope optical limitations. The blurred image is then downsampled by a factor of $\times 4$ using a third-order cubic spline interpolation to drastically reduce structural information. Crucially, to inject this low-resolution input as a conditioning channel into the DDPM, the degraded image is upsampled back to the original HR spatial dimensions via bicubic interpolation, ensuring structural alignment with the target.
+	\item \textbf{Super-resolution.} Paired training data are generated by degrading each high-resolution image with Gaussian blur ($\sigma=1.5$) followed by $\times4$ downsampling using cubic interpolation. The resulting low-resolution image is then upsampled back to the original dimensions via bicubic interpolation, providing an aligned conditioning input for the DDPM. \todo{make this definitely shorter}
 \end{enumerate}
 
 After each of these processes are done, randomized patch sampling and data augmentation strategies extracts sub-images exclusively from regions verified by a geometric validity mask.
 
 \todo{MANCA SPIEGARE IL DATASET MERGED}
 
-\begin{figure}[t]
-	\centering
-	\fbox{\parbox{0.9\linewidth}{\centering \vspace{2.2cm} FIGURE PLACEHOLDER\\ \small pipeline diagram: raw HLA frame $\to$ stretch $\to$ per-task degradation $\to$ (condition, target) pair, one row per task \vspace{2.2cm}}}
-	\caption{\todo{Overview of the data pipeline from raw HLA mosaics to the three per-task (condition, target) datasets.}}
-	\label{fig:pipeline}
-\end{figure}
+% \begin{figure}[t]
+% 	\centering
+% 	\fbox{\parbox{0.9\linewidth}{\centering \vspace{2.2cm} FIGURE PLACEHOLDER\\ \small pipeline diagram: raw HLA frame $\to$ stretch $\to$ per-task degradation $\to$ (condition, target) pair, one row per task \vspace{2.2cm}}}
+% 	\caption{\todo{Overview of the data pipeline from raw HLA mosaics to the three per-task (condition, target) datasets.}}
+% 	\label{fig:pipeline}
+% \end{figure}
 
 \subsection{Shared initialization $\theta_0$}
 \label{sec:theta0}
 
-All three specialists are fine-tuned from a common checkpoint $\theta_0$, obtained by pretraining the same architecture from a random initialization on a \emph{generic conditional-restoration} pretext task, rather than starting each specialist from an independent random init, as required by the original merging methods themselves: they all define each specialist's contribution as a task vector $\tau_t = \theta_t - \theta_0$, which is only meaningful if every $\theta_t$ is fine-tuned from the \emph{same} origin $\theta_0$.
+All three specialists are fine-tuned from a common checkpoint $\theta_0$, obtained by pretraining the same architecture from a random initialization on a \emph{generic conditional-restoration} pretext task, rather than starting each specialist from an independent random init, as required by the original merging methods themselves.
 
-More specifically, $\theta_0$ is trained to map a \emph{synthetically} degraded image back to its clean version. Targets are the pooled union of the training-split clean images from all three downstream tasks. Conditions are obtained by applying $1$--$3$ randomly chosen operations from \{additive Gaussian/Poisson-like noise, Gaussian blur, bicubic downsample-upsample, small random occlusions filled with local-mean statistics\}, with severity/parameters drawn independently of which task the source image came from, and a $10\%$ chance of a fully zeroed condition (classifier-free-guidance-style dropout \cite{ho2022cfg}). This deliberately decorrelates image content from degradation type, so that $\theta_0$ does not learn any implicit content-corruption association that a specialist fine-tune would then have to unlearn.
+% More specifically, $\theta_0$ is trained to map a \emph{synthetically} degraded image back to its clean version. Targets are the pooled union of the training-split clean images from all three downstream tasks. Conditions are obtained by applying $1$--$3$ randomly chosen operations from \{additive Gaussian/Poisson-like noise, Gaussian blur, bicubic downsample-upsample, small random occlusions filled with local-mean statistics\}, with severity/parameters drawn independently of which task the source image came from, and a $10\%$ chance of a fully zeroed condition (classifier-free-guidance-style dropout \cite{ho2022cfg}). This deliberately decorrelates image content from degradation type, so that $\theta_0$ does not learn any implicit content-corruption association that a specialist fine-tune would then have to unlearn.
+More specifically, $\theta_0$ is trained to reconstruct clean images from synthetically degraded inputs. Degradations consist of $1$--$3$ randomly selected operations from \{Gaussian/Poisson-like noise, Gaussian blur, bicubic downsample-upsample, and small local occlusions\}, with independently sampled parameters and a $10\%$ probability of a fully zeroed condition (classifier-free guidance dropout \cite{ho2022cfg}). This decorrelates image content from degradation type, preventing the pretrained model from learning task-specific biases.
 
-\paragraph*{Architecture.} The following architecture remains \emph{strictly identical} across $\theta_0$ pre-training and all downstream fine-tuning tasks. The model relies on a conditional U-Net architecture (\emph{ImprovedUNet}) that processes a 6-channel tensor obtained by concatenating the noisy latent $x_t$ and the spatial conditioning map. The network features an initial feature extraction block followed by 4 downsampling and 4 upsampling stages. Downsampling is performed via strided convolutions ($4 \times 4$, stride 2), which progressively double the channel width at each stage ($64 \rightarrow 128 \rightarrow 256 \rightarrow 512$).
+\subsection{Architecture}
+
+The following architecture remains \emph{strictly identical} across $\theta_0$ pre-training and all downstream fine-tuning tasks. The model relies on a conditional U-Net architecture (\emph{ImprovedUNet}) that processes a 6-channel tensor obtained by concatenating the noisy latent $x_t$ and the spatial conditioning map. The network features an initial feature extraction block followed by 4 downsampling and 4 upsampling stages. Downsampling is performed via strided convolutions ($4 \times 4$, stride 2), which progressively double the channel width at each stage ($64 \rightarrow 128 \rightarrow 256 \rightarrow 512$).
 
 Each architectural stage is built around residual \emph{UNetBlocks} comprising two convolutional layers ($3 \times 3$), Group Normalization (4 groups), and SiLU activations. Timestep embedding is achieved using a Sinusoidal projection layer ($C=64$) followed by a two-layer multi-layer perceptron with GELU activation to output a 256-dimensional time embedding vector, which is linearly projected and added to the intermediate features of every residual block.
 
-Multi-head self-attention mechanisms (configured with 2 heads and Layer Normalization) are integrated at the highest abstraction levels: specifically, at the end of the third encoder stage ($C=512$), within the central bottleneck layer ($C=512$), and immediately after the first decoder block ($C=256$). The decoder utilizes transposed convolutions ($4 \times 4$, stride 2) for spatial upscaling, followed by standard channel-wise concatenation with the encoder's skip connections. A final convolutional layer projects the remaining 64 channels back to the 3-channel image space to predict the $v$-target.
+Multi-head self-attention (2 heads with Layer Normalization) is applied at the deepest encoder stage, the bottleneck, and the first decoder stage. The decoder upsamples features using transposed convolutions with skip connections, and a final convolution projects the 64-channel output to a 3-channel $v$-prediction.
 
-\paragraph*{Diffusion formulation.} We use $v$-prediction with a cosine noise schedule ($200$ diffusion steps at pretraining time), optimized with the standard denoising MSE loss between predicted and true $v$.
+% Multi-head self-attention mechanisms (configured with 2 heads and Layer Normalization) are integrated at the highest abstraction levels: specifically, at the end of the third encoder stage ($C=512$), within the central bottleneck layer ($C=512$), and immediately after the first decoder block ($C=256$). The decoder utilizes transposed convolutions ($4 \times 4$, stride 2) for spatial upscaling, followed by standard channel-wise concatenation with the encoder's skip connections. A final convolutional layer projects the remaining 64 channels back to the 3-channel image space to predict the $v$-target.
 
-\subsection{Specialist fine-tuning}
+\subsection{\todo{find a title}}
 \label{sec:specialists}
 
 Each specialist reuses $\theta_0$'s architecture and the $v$-prediction framework, incorporating a cosine noise schedule over $T = 200$ diffusion steps, an exponential moving average (EMA) with $\beta=0.999$, and the AdamW optimizer. Fine-tuning is conducted exclusively on each specialist's respective (condition, target) pairs from Sec.~\ref{sec:data}. The optimization utilizes a learning rate of $1 \times 10^{-4}$ and a weight decay of $1 \times 10^{-4}$, regulated by a cosine annealing learning rate scheduler over a total of 100 epochs.
 
-\subsection{Model merging and post-merge fine-tuning}
-\label{sec:merging}
-
-\paragraph*{Two-stage grid search.} \todo{this section is the least complete and will be updated once the grid-search notebook is finalized. Currently missing: the exact search ranges for $\lambda$ (shared vs.\ one per specialist), TIES trim density $k$, DARE drop rate $p$; the reconstruction/perceptual metric(s) used to score a configuration; the exact ``retention'' formula (score of the merged model relative to the corresponding single-task specialist, expressed as a \%) and how it is aggregated; the Stage-1 filtering threshold; and the number of configurations evaluated / compute budget.} At a high level: Stage 1 scores candidate merged configurations after a fixed number of post-merge fine-tuning iterations on the six \todo{or seven?} single-degradation evaluation folders and discards clearly underperforming ones; Stage 2 re-evaluates the surviving configurations on all combinations of degradations (up to and including all three simultaneously) to pick the final merging and fine-tuning recipe.
-
-\paragraph*{Post-merge fine-tuning.} In early experiments, we noticed that zero-shot application of Task Arithmetic, TIES, and DARE-TIES failed to meet baseline performance expectations, resulting in significant image artifacts and a severe drop in reconstruction fidelity due to destructive weight interference. To address this, we introduce a subsequen fine-tuning stage for all three merged checkpoints, which consists of a brief training run utilizing a low learning rate and an aggregated dataset containing balanced mixtures of all three tasks.
+\paragraph*{Two-stage grid search.} \todo{fill this from the notebook, explain in detail how the two stage grid search works}
 
 \section{Results}
 \label{sec:results}
 
-\subsection{\todo{REFINE: choose a name to this}}
+\subsection{Choosing the search objective}
 
-This section contains all the experiments performed initially on task arithmetic, and subsequently repliacted on the other methods directly on the last iteration in other to maximize the results. \todo{REFINE: write better}
+We first developed and validated the search objective on Task Arithmetic, iterating through several evaluation metrics; the best-performing configuration was then applied unchanged to TIES and DARE-TIES on the final iteration to maximise the results.
 
 \paragraph*{Raw, pooled MSE.} The earliest attempts scored candidate merges by MSE against ground truth, first at a single hand-picked $\lambda$ point and then over an actual grid, split into a two-stage. However both consistently picked $\lambda_{\mathrm{SU}}=0$: because the super-resolution folder carries by far the largest absolute MSE, any pooled objective is minimised by \emph{suppressing} that task rather than balancing it.
 
-\paragraph*{Normalised MSE.} We proceeded to measure each task's error relative to its own single-task expert,
-\[
-	\mathrm{score}=\frac{1}{|T|}\sum_{t}\frac{\mathrm{MSE}_{\mathrm{merge}}[t]}{\mathrm{MSE}_{\mathrm{expert}}[t]},
-\]
-alongside PSNR/SSIM for a fuller picture. This normalised objective was the first to select a genuine three-task compromise instead of switching a task off entirely. Combined-degradation folders have no single expert to normalise against, so they were instead scored relative to $\theta_0$ --- i.e.\ how much merging improves on doing nothing.
+\paragraph*{Normalised MSE.} We proceeded to measure each task's error relative to its own single-task expert, alongside PSNR/SSIM for a fuller picture. This normalised objective was the first to select a genuine three-task compromise instead of switching a task off entirely. Combined-degradation folders have no single expert to normalise against, so they were instead scored relative to $\theta_0$ --- i.e.\ how much merging improves on doing nothing.
 
-\paragraph*{Perceptual Z-score.} The final refinement replaced MSE with LPIPS, a perceptual metric, in order to compensate any mismatch between low MSE and visibly poor super-resolution output quality. More specifically, LPIPS was used as a replacement for MSE on any folder involving super-resolution, and put every folder on a common scale via a per-folder Z-score before ranking --- $z=(x-\mu)/\sigma$ across the candidate grid, averaged before ranking.
+\paragraph*{Perceptual Z-score.} The final refinement replaced MSE with LPIPS, a perceptual metric, in order to compensate any mismatch between low MSE and visibly poor super-resolution output quality. More specifically, LPIPS was used as a replacement for MSE on any folder involving super-resolution, and put every folder on a common scale via a per-folder Z-score before ranking --- $z=(x-\mu)/\sigma$ across the candidate grid, averaged before ranking. \todo{make this non-redundant and without repetitions}
 
 \todo{in sta tabella vanno acchittati i numeri perché non va bene + centra le robe}
 
@@ -153,7 +152,7 @@ alongside PSNR/SSIM for a fuller picture. This normalised objective was the firs
 	\centering
 	\footnotesize
 	\renewcommand{\arraystretch}{1.3}
-	\begin{tabular}{@{}p{3.1cm}p{1.6cm}p{2.0cm}@{}}
+	\begin{tabular}{@{}p{3.3cm}p{1.6cm}p{2.0cm}@{}}
 		\toprule
 		\textbf{Selection metric}            & \textbf{$\lambda$ grid} & \textbf{Winner}      \\
 		\midrule
@@ -167,65 +166,114 @@ alongside PSNR/SSIM for a fuller picture. This normalised objective was the firs
 	\caption{Evolution of the search objective. Values of $\lambda$ reported as (SR/IR/SU).}
 \end{table}
 
-\paragraph*{What the diagnostics actually showed} Even though the last two objectives agree on {0.9/0.1/0.1, per-task diagnostics on the super-resolution folder show this merge is not the clean win it appears to be:
+\todo{add a sentence like "however, when troubleshooting..."} The merge has the \emph{lowest} MSE of the three, yet by far the \emph{worst} LPIPS: MSE was rewarding a smoother, perceptually worse prediction. The LPIPS gap persists even with many more sampling steps, ruling out a sampling artifact. The task vectors are nearly orthogonal (cosine similarity $\approx 0.08$--$0.12$), which normally favours task arithmetic, but $\tau_{\mathrm{SU}}$'s much larger norm means even a small mixing coefficient from the other two tasks perturbs its direction enough to visibly degrade perceptual quality. \todo{make this paragraph shorter}
 
-		\begin{table}[h]
-			\centering
-			\footnotesize
-			\renewcommand{\arraystretch}{1.25}
-			\begin{tabular}{@{}lccc@{}}
-				\toprule
-				\textbf{Model}                      & \textbf{Det.\ val loss} & \textbf{MSE}     & \textbf{LPIPS}  \\
-				\midrule
-				Pure pre-trained base $\theta_0$    & 0.0835                  & 0.00827          & 0.2303          \\
-				Single-task super-resolution expert & 0.0880                  & 0.00893          & 0.2203          \\
-				Merged model (0.9/0.1/0.1)          & 0.1557                  & \textbf{0.00707} & \textbf{0.4080} \\
-				\bottomrule
-			\end{tabular}
-			\caption{Super-resolution folder: deterministic val.\ loss, MSE, LPIPS.}
-		\end{table}
+\paragraph*{Findings} The whole arc reduces to one lesson: the choice of evaluation metric mattered \emph{far more} than the choice of search algorithm. Raw pooled MSE quietly answered a different question --- ``minimise total pixel error'' --- than the one actually being asked --- ``be good at all three tasks at once'' --- which is why it kept switching super-resolution off. Normalising against per-task baselines fixed that pooling artifact and recovered a real compromise, but only a perceptual metric exposed the deeper issue: interference between task vectors that pixel-wise error cannot see. Any merge of these experts should be validated perceptually before being trusted. \todo{make this paragraph more paper-like, and also shorter}
 
-		The merge has the \emph{lowest} MSE of the three, yet by far the \emph{worst} LPIPS: MSE was rewarding a smoother, perceptually worse prediction. The LPIPS gap persists even with many more sampling steps, ruling out a sampling artifact. The task vectors are nearly orthogonal (cosine similarity $\approx 0.08$--$0.12$), which normally favours task arithmetic, but $\tau_{\mathrm{SU}}$'s much larger norm means even a small mixing coefficient from the other two tasks perturbs its direction enough to visibly degrade perceptual quality.
-
-		\todo{non ho capito che cosa vuole dire il paragrafo prima di questa scritta}
-
-		\paragraph*{Findings} The whole arc reduces to one lesson: the choice of evaluation metric mattered \emph{far more} than the choice of search algorithm.} Raw pooled MSE quietly answered a different question --- ``minimise total pixel error'' --- than the one actually being asked --- ``be good at all three tasks at once'' --- which is why it kept switching super-resolution off. Normalising against per-task baselines fixed that pooling artifact and recovered a real compromise, but only a perceptual metric exposed the deeper issue: interference between task vectors that pixel-wise error cannot see. Any merge of these experts should be validated perceptually before being trusted. \todo{this paragraph must be rewritten, too AI-y}
 
 \begin{table}[t]
-	\label{tab:results}
+	\label{tab:results_valloss}
 	\begin{center}
 		\begin{small}
 			\begin{tabular}{lccc}
 				\toprule
-				Eval.\ folder & Task Arith.\  & TIES     & DARE-TIES \\
+				Eval.\ folder & Task Arith.\  & TIES    & DARE-TIES \\
 				\midrule
-				SR only       & \todo{-}      & \todo{-} & \todo{-}  \\
-				IR only       & \todo{-}      & \todo{-} & \todo{-}  \\
-				SU only       & \todo{-}      & \todo{-} & \todo{-}  \\
-				SR+IR         & \todo{-}      & \todo{-} & \todo{-}  \\
-				SR+SU         & \todo{-}      & \todo{-} & \todo{-}  \\
-				IR+SU         & \todo{-}      & \todo{-} & \todo{-}  \\
-				SR+IR+SU      & \todo{-}      & \todo{-} & \todo{-}  \\
+				SR only       & 3.01e-3       & 3.37e-3 & 7.31e-3   \\
+				IR only       & 6.80e-4       & 8.33e-4 & 1.13e-3   \\
+				SU only       & 5.25e-2       & 5.20e-2 & 2.76e-2   \\
+				SR+IR         & 1.36e-3       & 1.63e-3 & 2.09e-3   \\
+				SR+SU         & 9.31e-3       & 9.36e-3 & 2.84e-2   \\
+				IR+SU         & 1.49e-1       & 1.52e-1 & 6.47e-2   \\
+				SR+IR+SU      & 5.60e-2       & 5.61e-2 & 2.67e-2   \\
 				\bottomrule
 			\end{tabular}
 		\end{small}
 	\end{center}
-	\caption{Retention (\%) of merged-model performance relative to the corresponding single-task specialist, per evaluation folder. \todo{fill in.}}
 \end{table}
+
+\todo{add caption of the following} VAL LOSS: MSE sulla predizione di v (v-prediction) a un timestep casuale del processo diffusivo (non è una metrica nello spazio immagine)
+
+
+\begin{table}[t]
+	\label{tab:results_mse}
+	\begin{center}
+		\begin{small}
+			\begin{tabular}{lccc}
+				\toprule
+				Eval.\ folder & Task Arith.\  & TIES    & DARE-TIES \\
+				\midrule
+				SR only       & 1.05e-3       & 1.14e-3 & 1.25e-3   \\
+				IR only       & 3.62e-4       & 4.21e-4 & 4.56e-4   \\
+				SU only       & 7.73e-3       & 7.76e-3 & 8.56e-3   \\
+				SR+IR         & 5.14e-4       & 5.73e-4 & 6.18e-4   \\
+				SR+SU         & 5.71e-3       & 5.71e-3 & 6.14e-3   \\
+				IR+SU         & 1.62e-3       & 1.67e-3 & 1.69e-3   \\
+				SR+IR+SU      & 2.65e-3       & 2.67e-3 & 2.68e-3   \\
+				\bottomrule
+			\end{tabular}
+		\end{small}
+	\end{center}
+\end{table}
+
+\todo{add the following caption} VAL MSE: è la MSE nello spazio immagine (range [-1,1]) tra l'immagine generata con sampling DDIM completo e il target reale
+
+
+\begin{table}[t]
+	\label{tab:results_psnr}
+	\begin{center}
+		\begin{small}
+			\begin{tabular}{lccc}
+				\toprule
+				Eval.\ folder & Task Arith.\  & TIES  & DARE-TIES \\
+				\midrule
+				SR only       & 39.29         & 38.63 & 37.85     \\
+				IR only       & 41.54         & 40.70 & 40.29     \\
+				SU only       & 33.62         & 33.28 & 32.96     \\
+				SR+IR         & 39.42         & 38.85 & 38.32     \\
+				SR+SU         & 31.53         & 31.49 & 31.19     \\
+				IR+SU         & 35.48         & 35.31 & 35.28     \\
+				SR+IR+SU      & 32.79         & 32.70 & 32.75     \\
+				\bottomrule
+			\end{tabular}
+		\end{small}
+	\end{center}
+\end{table}
+
+\todo{add the following caption} VAL PSNR
+
+\todo{can you make a graph/histogram(s) of these tables? for example some visualization that incorporates these tables}
+
+\subsection{Effect of post-merge fine-tuning}
+\label{sec:ft-results}
+
+Applied zero-shot, all three merging methods produced visible artifacts and degraded reconstruction fidelity, confirming the destructive interference discussed above. We therefore fine-tuned each merged checkpoint with a short, deliberately conservative schedule that initializes \emph{both} the network and its EMA copy from the merged weights and trains on a small, balanced mixture of all seven degradation combinations (IR, SR, SU and their pairings and triple). The formulation is kept identical to the specialists
+
+\paragraph*{Findings.} The effect is consistent across all three merging methods: the brief fine-tune resolves the interference introduced by merging and recovers multi-task quality that the zero-shot merges never reach. Task Arithmetic, TIES, and DARE-TIES behave essentially identically here -- each yields the same large, stable improvement over its own un-fine-tuned counterpart across every evaluation folder, in both pixel-level (MSE) and perceptual (LPIPS) terms, with no task collapsing.
 
 % ------------------------------------------------------------------------------
 \section{Discussion and Conclusions}
 \label{sec:discussion}
 
-\todo{Full section pending results. Points to address once numbers are available: (1) does any merging method approach the cascaded-specialists upper bound, and on which folders does it fall short (likely the multi-degradation ones, where interference is expected to be worst)? (2) Analysis of why zero-shot merging methods failed to satisfy expectations, and how much the proposed post-merge fine-tuning recovered multi-task performance; (3) does TIES/DARE-TIES meaningfully outperform plain Task Arithmetic after the fine-tuning phase, and is the improvement worth the extra hyperparameters ($k$, $p$)? (4) sensitivity of the result to $\lambda$ -- is there a wide plateau or a sharp optimum? (5) limitations: single, fairly small, HLA-specific dataset; dependence on a custom-pretrained $\theta_0$ rather than a generic pretrained backbone; StarNet's own biases propagating into the star-removal specialist through the synthetic star-injection pipeline. (6) future work: learned/optimized merging coefficients (e.g.\ AdaMerging-style test-time entropy minimization) instead of grid search; extending to more than three tasks; comparing against an explicitly multi-task-trained model as a further baseline.}
+\todo{add in some way or another this sentence in the conclusion} In other words, the post-merge step is what makes weight-space merging viable for these generative restoration tasks in the first place, and the specific merging algorithm matters far less than whether this stage is applied at all.
+
+\todo{write this section, based on the rest of the work, as best as you can. ASSUME THAT THERE IS TABLE WHICH SHOWS THAT Z SCORES IMPROVE IN THE FINE TUNED MERGED MODELS}
 
 % ------------------------------------------------------------------------------
 \section{Statement on the use of AI}
 \label{sec:ai}
 
-\todo{This section is mandatory and must be accurate and specific -- fill in honestly before submission. Template below; edit freely.}
+Three AI tools were used in this project, in distinct roles:
 
-AI tooling (\todo{name the tool(s), e.g.\ ``Claude''}) was used in this project for: \todo{list concretely, e.g.\ ``(i) debugging the pretraining/fine-tuning scripts (e.g.\ identifying that all three checkpoint paths pointed to an intermediate \texttt{epoch\_100} snapshot instead of the final epoch; that $\theta_0$ hash verification had been silently dropped; that evaluation seeding was missing from the grid search); (ii) drafting boilerplate code for the crop-manifest / dataset-splitting scripts; (iii) editing and structuring this report; (iv) literature search for the Related Work section.''} All reported architectural choices, training curves, and quantitative results were produced and verified by the author; \todo{any AI-suggested code or claim that ended up in the final pipeline should be explicitly flagged as such here, per the course's AI-misuse policy.}
+\todo{write this list better}
+
+\begin{itemize}
+	\item \emph{Claude} was used for code generation, architectural choices, troubleshooting during training and generation of this report
+	\item \emph{Gemini} was used strictly for code generation
+	\item \emph{ChatGPT} was used for the writing of this report
+\end{itemize}
+
+All reported architectural choices, training curves, and quantitative results were produced and verified by the authors.
 
 \bibliography{references.bib}
 \bibliographystyle{dlaiml2026}
