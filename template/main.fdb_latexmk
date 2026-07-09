@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1783629956.0018 "main.aux" "main.bbl" "main" 1783631050.01522 0
+["bibtex main"] 1783633174.44362 "main.aux" "main.bbl" "main" 1783633175.23042 0
   "./dlaiml2026.bst" 1747108319 27123 391b17a7764c6e139758d2aa411ce75b ""
   "./references.bib" 1783606298.96837 3824 a300c367a9727737281ce68a7dd84b14 ""
-  "main.aux" 1783631049.8098 2233 fd0920ec719a42b530f9692e83e25edc "pdflatex"
+  "main.aux" 1783633174.99507 2804 9cd7975f154eb3035d9b805325b5006a "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1783631049.34907 "main.tex" "main.pdf" "main" 1783631050.01538 0
+["pdflatex"] 1783633174.5185 "main.tex" "main.pdf" "main" 1783633175.23078 0
   "/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc" 1775415801 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1775415801 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1775415801 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -40,6 +40,7 @@
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb" 1775415801 36094 798f80770b3b148ceedd006d487db67c ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1775415801 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb" 1775415801 32762 224316ccc9ad3ca0423a14971cfa7fc1 ""
+  "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb" 1775415801 33993 9b89b85fd2d9df0482bd47194d1d3bf3 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1775415801 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1775415801 32716 08e384dc442464e7285e891af9f45947 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb" 1775415801 32442 c975af247b6702f7ca0c299af3616b80 ""
@@ -124,10 +125,11 @@
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1782144765 2380435 b7aab2599ec3d4f3ba71379a52f28915 ""
   "dlaiml2026.sty" 1776085559 27122 68d9b1aa3fc1eb3a03030f35cf79f1a9 ""
   "fancyhdr.sty" 1619586354 20521 e5d13d98d57bd53d4fed3aa61bd29c86 ""
-  "main.aux" 1783631049.8098 2233 fd0920ec719a42b530f9692e83e25edc "pdflatex"
-  "main.bbl" 1783629956.06621 3369 c5885dd468a35aeed593547e5b2a4dd0 "bibtex main"
-  "main.out" 1783631049.66323 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "main.tex" 1783631048.69079 27596 0797e6908de53648f2b9a1a709c76d29 ""
+  "main.aux" 1783633174.99507 2804 9cd7975f154eb3035d9b805325b5006a "pdflatex"
+  "main.bbl" 1783633174.50906 3369 c5885dd468a35aeed593547e5b2a4dd0 "bibtex main"
+  "main.out" 1783633174.83682 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "main.tex" 1783633172.20605 31217 402a5daa7102237903ea391b6e540253 ""
+  "results_barplot.pdf" 1783631778.35165 18603 415b0b8225f5457f107bb843597ee6e6 ""
   (generated)
   "main.aux"
   "main.log"
