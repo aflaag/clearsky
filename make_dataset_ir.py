@@ -1,3 +1,14 @@
+"""
+Image Restoration (IR) Dataset Builder
+
+Creates (input_with_defects, corrected) training pairs for DDPM image restoration.
+It specifically targets pixel-level defects (dead/hot pixels). To ensure the model 
+learns effectively, it utilizes an integral image (summed area table) to actively 
+sample patches containing a minimum number of defective pixels based on a specified ratio,
+while still providing "negative" examples (clean patches) so the model learns not to 
+alter healthy pixels.
+"""
+
 import argparse
 from pathlib import Path
 
@@ -6,10 +17,10 @@ from PIL import Image
 
 
 def build_patch_sum_map(mask, patch_size):
-    """Integral image (summed area table) su una maschera binaria.
+    """Integral image (summed area table) on a binary mask.
 
-    Restituisce (H, W) int64: somma dei pixel True in ogni patch patch_size x patch_size
-    con top-left in (y, x). Valori validi solo per y <= H-p, x <= W-p (0 altrove).
+    Returns (H, W) int64: sum of True pixels in each patch_size x patch_size patch
+    with top-left at (y, x). Valid values only for y <= H-p, x <= W-p (0 elsewhere).
     """
     H, W = mask.shape
     p = patch_size
@@ -38,13 +49,13 @@ def build_patch_sum_map(mask, patch_size):
 
 
 def build_candidate_mask(pixel_mask, patch_size):
-    """Top-left validi: patch interamente dentro la regione valida."""
+    """Valid top-lefts: patches entirely within the valid region."""
     sum_map = build_patch_sum_map(pixel_mask, patch_size)
     return sum_map == patch_size * patch_size
 
 
 def sample_position(candidate_mask):
-    """Campiona una posizione top-left casuale tra quelle valide."""
+    """Samples a random top-left position among the valid ones."""
     ys, xs = np.where(candidate_mask)
     if len(ys) == 0:
         return None, None
@@ -53,7 +64,7 @@ def sample_position(candidate_mask):
 
 
 def apply_augmentation(patch, flip_h, flip_v, rot_k):
-    """Applica augmentation deterministica dato il set di parametri."""
+    """Applies deterministic augmentation given the parameter set."""
     if flip_h:
         patch = np.fliplr(patch)
     if flip_v:
@@ -64,7 +75,7 @@ def apply_augmentation(patch, flip_h, flip_v, rot_k):
 
 
 def random_aug_params():
-    """Campiona parametri di augmentation casuali."""
+    """Samples random augmentation parameters."""
     return {
         "flip_h": np.random.rand() < 0.5,
         "flip_v": np.random.rand() < 0.5,
@@ -73,7 +84,7 @@ def random_aug_params():
 
 
 def save_patch(patch, stem, npy_dir, png_dir):
-    """Salva patch come NPY float32 e, se png_dir non è None, anche PNG uint8."""
+    """Saves patch as float32 NPY and, if png_dir is not None, also uint8 PNG."""
     np.save(npy_dir / f"{stem}.npy", patch.astype(np.float32))
     if png_dir is not None:
         png = np.clip(patch * 255.0, 0, 255).astype(np.uint8)
@@ -96,85 +107,85 @@ def process_file(
 ):
     print(f"Processing {input_path.name}")
 
-    # --- Carica immagine input (originale, con dead/hot pixel) ---
+    # --- Load input image (original, with dead/hot pixels) ---
     defective = np.load(input_path)  # (H, W, 3) float32
     if defective.ndim != 3 or defective.shape[-1] != 3:
-        print(f"  [SKIP] shape inattesa NPY input: {defective.shape}")
+        print(f"  [SKIP] unexpected NPY input shape: {defective.shape}")
         return 0
 
     H, W, _ = defective.shape
 
     if H < patch_size or W < patch_size:
         print(
-            f"  [SKIP] {H}x{W} troppo piccola per patch {patch_size}x{patch_size}"
+            f"  [SKIP] {H}x{W} too small for {patch_size}x{patch_size} patch"
         )
         return 0
 
-    # --- Carica target (corretto da detect_pixel_defects.py) ---
+    # --- Load target (corrected by detect_pixel_defects.py) ---
     if not target_path.exists():
-        print(f"  [SKIP] target non trovato: {target_path}")
+        print(f"  [SKIP] target not found: {target_path}")
         return 0
 
     target = np.load(target_path)
 
     if target.shape != defective.shape:
-        print(f"  [SKIP] Mismatch shape: target {target.shape} vs input {defective.shape}")
+        print(f"  [SKIP] Shape mismatch: target {target.shape} vs input {defective.shape}")
         return 0
 
-    # --- Carica maschera di validità ---
+    # --- Load validity mask ---
     if not mask_path.exists():
-        print(f"  [SKIP] maschera non trovata: {mask_path}")
+        print(f"  [SKIP] mask not found: {mask_path}")
         return 0
 
     pixel_mask = np.load(mask_path)  # (H, W) bool
     if pixel_mask.shape != (H, W):
-        print(f"  [SKIP] maschera shape {pixel_mask.shape} != {H}x{W}")
+        print(f"  [SKIP] mask shape {pixel_mask.shape} != {H}x{W}")
         return 0
 
-    # --- Mappa dei difetti: dove input e target differiscono ---
-    # (equivalente alla bad_mask di detect_pixel_defects.py, ottenuta per sottrazione,
-    # come già intuito: dove la correzione ha agito, input != target)
+    # --- Defect map: where input and target differ ---
+    # (equivalent to the bad_mask from detect_pixel_defects.py, obtained by subtraction,
+    # as already intuited: where the correction acted, input != target)
     defect_mask = np.abs(defective - target).sum(axis=-1) > defect_eps
 
-    # --- Posizioni candidate (patch interamente nella regione valida) ---
+    # --- Candidate positions (patches entirely in the valid region) ---
     candidate_mask = build_candidate_mask(pixel_mask, patch_size)
     n_candidates = int(candidate_mask.sum())
 
     if n_candidates == 0:
         print(
-            f"  [SKIP] nessuna posizione valida per patch {patch_size}x{patch_size}"
+            f"  [SKIP] no valid position for {patch_size}x{patch_size} patch"
         )
         return 0
 
-    # --- Posizioni la cui patch contiene abbastanza pixel difettosi ---
+    # --- Positions whose patch contains enough defective pixels ---
     defect_count_map = build_patch_sum_map(defect_mask, patch_size)
     defect_candidate_mask = candidate_mask & (defect_count_map >= min_defect_pixels)
     n_defect_candidates = int(defect_candidate_mask.sum())
 
     png_label = " + png" if input_png_dir is not None else ""
     print(
-        f"  Shape: {H}x{W} | Candidati: {n_candidates} "
-        f"(con difetti: {n_defect_candidates}) | Crop: {crops_per_image}{png_label}"
+        f"  Shape: {H}x{W} | Candidates: {n_candidates} "
+        f"(with defects: {n_defect_candidates}) | Crops: {crops_per_image}{png_label}"
     )
 
     if n_defect_candidates == 0:
         print(
-            f"  [WARN] nessuna patch contiene >= {min_defect_pixels} pixel difettosi: "
-            f"tutti i crop saranno campionati a caso (controlla soglie di detect_pixel_defects.py)"
+            f"  [WARN] no patch contains >= {min_defect_pixels} defective pixels: "
+            f"all crops will be sampled randomly (check detect_pixel_defects.py thresholds)"
         )
 
     basename = input_path.stem
     saved = 0
 
-    # Soglie (identiche a make_dataset_sr.py)
+    # Thresholds (identical to make_dataset_sr.py)
     THRESH_BLACK = 0.05
     THRESH_VAR = 1e-5
-    MAX_RETRIES = 10  # Evita loop infiniti se l'immagine è tutta buia
+    MAX_RETRIES = 10  # Avoid infinite loops if the image is entirely dark
 
     for i in range(crops_per_image):
-        # Con probabilità defect_ratio privilegia patch con difetti reali;
-        # il resto sono esempi "negativi" (il modello deve imparare anche
-        # a non alterare pixel già puliti)
+        # With defect_ratio probability, prioritize patches with real defects;
+        # the rest are "negative" examples (the model must also learn 
+        # not to alter already clean pixels)
         use_defect_pool = n_defect_candidates > 0 and np.random.rand() < defect_ratio
         pool = defect_candidate_mask if use_defect_pool else candidate_mask
 
@@ -183,28 +194,28 @@ def process_file(
         for attempt in range(MAX_RETRIES):
             y, x = sample_position(pool)
             if y is None:
-                break  # Nessuna posizione valida in questo pool
+                break  # No valid position in this pool
 
             patch_input = defective[y : y + patch_size, x : x + patch_size, :]
 
             patch_mean = float(patch_input.mean())
             patch_var = float(patch_input.var())
 
-            # Condizione di validità: non troppo nera E non troppo piatta
+            # Validity condition: not too black AND not too flat
             if patch_mean >= THRESH_BLACK and patch_var >= THRESH_VAR:
                 valid_patch_found = True
                 break
 
         if not valid_patch_found:
             print(
-                f"  [WARN] Impossibile trovare una patch valida per il crop {i} "
-                f"dopo {MAX_RETRIES} tentativi"
+                f"  [WARN] Impossible to find a valid patch for crop {i} "
+                f"after {MAX_RETRIES} attempts"
             )
             continue
 
         patch_target = target[y : y + patch_size, x : x + patch_size, :]
 
-        # Stessa augmentation per entrambe
+        # Same augmentation for both
         aug = random_aug_params()
         patch_input = apply_augmentation(patch_input, **aug)
         patch_target = apply_augmentation(patch_target, **aug)
@@ -214,63 +225,63 @@ def process_file(
         save_patch(patch_target, stem, target_npy_dir, target_png_dir)
         saved += 1
 
-    print(f"  Salvati {saved}/{crops_per_image} crop")
+    print(f"  Saved {saved}/{crops_per_image} crops")
     return saved
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Crea coppie (input_con_difetti, corretto) per training DDPM di image restoration."
+        description="Creates (input_with_defects, corrected) pairs for DDPM image restoration training."
     )
     parser.add_argument(
         "--input-dir",
         default="assets/outputs-npy",
-        help="NPY stretchati originali (con dead/hot pixel), output di astro_stretch.py",
+        help="Original stretched NPYs (with dead/hot pixels), output of astro_stretch.py",
     )
     parser.add_argument(
         "--target-dir",
         default="assets/outputs-pixelfix",
-        help="NPY corretti, output di detect_pixel_defects.py",
+        help="Corrected NPYs, output of detect_pixel_defects.py",
     )
     parser.add_argument(
         "--mask-dir",
         default="assets/outputs-mask",
-        help="Maschere da make_masks.py",
+        help="Masks from make_masks.py",
     )
     parser.add_argument(
         "--out-dir",
         default="dataset_ir",
-        help="Cartella output (default: dataset_ir)",
+        help="Output folder (default: dataset_ir)",
     )
     parser.add_argument(
         "--patch-size",
         type=int,
         default=256,
-        help="Dimensione patch (default: 256)",
+        help="Patch size (default: 256)",
     )
     parser.add_argument(
         "--crops-per-image",
         type=int,
         default=50,
-        help="Crop per immagine (default: 50)",
+        help="Crops per image (default: 50)",
     )
     parser.add_argument(
         "--defect-ratio",
         type=float,
         default=0.8,
-        help="Frazione di crop campionati preferenzialmente da patch con difetti (default: 0.8)",
+        help="Fraction of crops sampled preferentially from patches with defects (default: 0.8)",
     )
     parser.add_argument(
         "--min-defect-pixels",
         type=int,
         default=1,
-        help="Pixel corretti minimi richiesti in una patch 'con difetti' (default: 1)",
+        help="Minimum corrected pixels required in a 'defective' patch (default: 1)",
     )
     parser.add_argument(
         "--defect-eps",
         type=float,
         default=1e-6,
-        help="Soglia sulla differenza assoluta input-target per contare un pixel come difetto (default: 1e-6)",
+        help="Threshold on absolute input-target difference to count a pixel as defective (default: 1e-6)",
     )
     parser.add_argument(
         "--seed", type=int, default=42, help="Seed (default: 42)"
@@ -278,7 +289,7 @@ def main():
     parser.add_argument(
         "--save-png",
         action="store_true",
-        help="Salva anche le patch PNG (utile per debug visivo)",
+        help="Also save PNG patches (useful for visual debugging)",
     )
     args = parser.parse_args()
 
@@ -292,7 +303,7 @@ def main():
     input_npy_dir = out / "input" / "npy"
     target_npy_dir = out / "target" / "npy"
 
-    # Cartelle PNG create solo se richieste
+    # PNG folders created only if requested
     input_png_dir = out / "input" / "png" if args.save_png else None
     target_png_dir = out / "target" / "png" if args.save_png else None
 
@@ -305,10 +316,10 @@ def main():
 
     input_files = sorted(input_dir.glob("*.npy"))
     if not input_files:
-        print(f"Nessun file .npy trovato in {input_dir}")
+        print(f"No .npy files found in {input_dir}")
         return
 
-    print(f"Trovati {len(input_files)} file NPY (input)")
+    print(f"Found {len(input_files)} NPY files (input)")
     print(f"Patch size      : {args.patch_size}x{args.patch_size}")
     print(f"Crops/image     : {args.crops_per_image}")
     print(f"Defect ratio    : {args.defect_ratio}")
@@ -334,7 +345,7 @@ def main():
             defect_eps=args.defect_eps,
         )
 
-    print(f"\nCompletato. Totale coppie salvate: {total}")
+    print(f"\nCompleted. Total pairs saved: {total}")
 
 
 if __name__ == "__main__":

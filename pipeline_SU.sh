@@ -1,7 +1,16 @@
 #!/bin/bash
+# Super-Resolution (SU) Pipeline Runner
+#
+# Executes the full sequence of scripts required to build the dataset 
+# for Super-Resolution. It stretches the raw FITS, generates validity masks, 
+# degrades the high-resolution images to simulate lower quality/blur, 
+# and finally compiles the training patches by pairing degraded inputs 
+# with HR targets.
+
 set -e
-# Flag disponibili:
-#   --save-png  salva PNG di debug in degrade_images.py e make_dataset_sr.py
+
+# Available flags:
+#   --save-png   saves debug PNGs in degrade_images.py and make_dataset_su.py
 SAVE_PNG=false
 for arg in "$@"; do
     case "$arg" in
@@ -10,13 +19,13 @@ for arg in "$@"; do
 done
 
 echo "******** Starting astro_stretch.py ********"
-# --save-tiff genera i TIFF HR a 16-bit. Se già eseguito per la pipeline
-# di star removal, questo step riusa gli stessi file (nessun bisogno di
-# rigenerarli due volte a meno che il resize/stretch non sia cambiato).
+# --save-tiff generates the 16-bit HR TIFFs. If already executed for the 
+# star removal pipeline, this step reuses the same files (no need to 
+# regenerate them twice unless the resize/stretch has changed).
 python astro_stretch.py --save-tiff
 
 echo "******** Starting make_masks.py ********"
-# Riusata la stessa maschera di validità della pipeline di star removal.
+# Reuses the same validity mask from the star removal pipeline.
 python make_masks.py
 
 echo "******** Starting degrade_images.py ********"
@@ -33,4 +42,4 @@ else
     python make_dataset_su.py --crops-per-image 200
 fi
 
-echo "******** Pipeline SU completata ********"
+echo "******** SU Pipeline completed ********"

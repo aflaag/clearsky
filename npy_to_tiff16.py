@@ -1,10 +1,11 @@
-#!/usr/bin/env python3
 """
-Converte una cartella di NPY float32 in [0,1] in TIFF 16-bit.
+NPY to TIFF Converter
 
-Serve da collante quando una combo richiede sia inject_stars.py sia
-degrade_images.py in sequenza: entrambi producono NPY in output, ma
-degrade_images.py richiede TIFF in input (--tiff-dir).
+Converts a folder of float32 NPY files in [0, 1] to 16-bit TIFFs.
+
+Acts as glue code when a pipeline sequence requires both inject_stars.py and 
+degrade_images.py: both output NPY files, but degrade_images.py expects 
+TIFFs as input (--tiff-dir).
 """
 import argparse
 from pathlib import Path
@@ -15,10 +16,10 @@ import tifffile
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Converte NPY [0,1] float32 in TIFF 16-bit."
+        description="Converts [0,1] float32 NPY files to 16-bit TIFFs."
     )
-    parser.add_argument("--npy-dir", required=True)
-    parser.add_argument("--out-dir", required=True)
+    parser.add_argument("--npy-dir", required=True, help="Input directory containing NPY files")
+    parser.add_argument("--out-dir", required=True, help="Output directory for 16-bit TIFF files")
     args = parser.parse_args()
 
     npy_dir = Path(args.npy_dir)
@@ -27,7 +28,7 @@ def main():
 
     files = sorted(npy_dir.glob("*.npy"))
     if not files:
-        print(f"Nessun file .npy trovato in {npy_dir}")
+        print(f"No .npy files found in {npy_dir}")
         return
 
     for f in files:
@@ -35,7 +36,7 @@ def main():
         arr16 = np.clip(arr * 65535.0, 0, 65535).astype(np.uint16)
         tifffile.imwrite(out_dir / f"{f.stem}.tif", arr16)
 
-    print(f"Convertiti {len(files)} file in {out_dir}")
+    print(f"Converted {len(files)} files to {out_dir}")
 
 
 if __name__ == "__main__":

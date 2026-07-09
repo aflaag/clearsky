@@ -1,8 +1,13 @@
 #!/bin/bash
+# Image Restoration (IR) Pipeline Runner
+#
+# Executes the full sequence of scripts required to build the dataset 
+# for Image Restoration (e.g., repairing pixel defects).
+
 set -e
 
-# Flag disponibili:
-#   --save-png  salva PNG di debug in make_masks e make_dataset
+# Available flags:
+#   --save-png   saves debug PNGs in make_masks and make_dataset
 
 SAVE_PNG=false
 for arg in "$@"; do
@@ -12,7 +17,7 @@ for arg in "$@"; do
 done
 
 echo "******** Starting astro_stretch.py ********"
-# --save-tiff è obbligatorio: genera i TIFF a 16-bit necessari a StarNet2 per evitare il banding
+# --save-tiff is mandatory: it generates the 16-bit TIFFs required by StarNet2 to avoid banding
 python astro_stretch.py --save-tiff
 
 echo "******** Starting make_masks.py ********"
@@ -25,11 +30,11 @@ fi
 echo "******** Starting detect_pixel_defects.py ********"
 python detect_pixel_defects.py --save-tiff --save-mask-tiff --sigma 10
 
-echo "******** Starting make_dataset_sr.py ********"
+echo "******** Starting make_dataset_ir.py ********"
 if [ "$SAVE_PNG" = true ]; then
     python make_dataset_ir.py --crops-per-image 200 --save-png
 else
     python make_dataset_ir.py --crops-per-image 200
 fi
 
-echo "******** Pipeline IR completata ********"
+echo "******** IR Pipeline completed ********"

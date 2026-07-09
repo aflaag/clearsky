@@ -1,3 +1,13 @@
+"""
+Super-Resolution (SU) Dataset Builder
+
+Creates (degraded_input, high_resolution) training pairs for conditioned DDPM 
+super-resolution training. It pairs degraded NPY inputs (which have already been 
+upsampled to the HR resolution by degrade_images.py) with the original high-resolution 
+TIFF ground truths. It uses an integral image to efficiently sample valid patches strictly 
+within the provided pixel masks, ensuring it avoids completely black or featureless patches.
+"""
+
 import argparse
 from pathlib import Path
 
@@ -7,9 +17,9 @@ import tifffile
 
 
 def build_candidate_mask(pixel_mask, patch_size):
-    """Integral image (summed area table) sulla maschera pixel.
+    """Integral image (summed area table) on the pixel mask.
 
-    Restituisce mappa bool (H, W) dei top-left validi per patch.
+    Returns a boolean map (H, W) of valid top-left positions for patches.
     """
     H, W = pixel_mask.shape
     p = patch_size
@@ -39,7 +49,7 @@ def build_candidate_mask(pixel_mask, patch_size):
 
 
 def sample_position(candidate_mask):
-    """Campiona una posizione top-left casuale tra quelle valide."""
+    """Samples a random top-left position among the valid ones."""
     ys, xs = np.where(candidate_mask)
     if len(ys) == 0:
         return None, None
@@ -48,7 +58,7 @@ def sample_position(candidate_mask):
 
 
 def apply_augmentation(patch, flip_h, flip_v, rot_k):
-    """Applica augmentation deterministica dato il set di parametri."""
+    """Applies deterministic augmentation given the parameter set."""
     if flip_h:
         patch = np.fliplr(patch)
     if flip_v:
@@ -59,7 +69,7 @@ def apply_augmentation(patch, flip_h, flip_v, rot_k):
 
 
 def random_aug_params():
-    """Campiona parametri di augmentation casuali."""
+    """Samples random augmentation parameters."""
     return {
         "flip_h": np.random.rand() < 0.5,
         "flip_v": np.random.rand() < 0.5,
@@ -68,7 +78,7 @@ def random_aug_params():
 
 
 def save_patch(patch, stem, npy_dir, png_dir):
-    """Salva patch come NPY float32 e, se png_dir non è None, anche PNG uint8."""
+    """Saves patch as float32 NPY and, if png_dir is not None, also uint8 PNG."""
     np.save(npy_dir / f"{stem}.npy", patch.astype(np.float32))
     if png_dir is not None:
         png = np.clip(patch * 255.0, 0, 255).astype(np.uint8)
@@ -76,9 +86,9 @@ def save_patch(patch, stem, npy_dir, png_dir):
 
 
 def load_hr_tiff(tiff_path):
-    """Carica il TIFF HR (ground truth, output di astro_stretch.py).
+    """Loads the HR TIFF (ground truth, output of astro_stretch.py).
 
-    16-bit -> normalizza in [0, 1] dividendo per 65535.
+    16-bit -> normalizes to [0, 1] by dividing by 65535.
     """
     arr = tifffile.imread(tiff_path)
 
@@ -87,7 +97,7 @@ def load_hr_tiff(tiff_path):
     elif arr.dtype == np.uint8:
         return arr.astype(np.float32) / 255.0
     else:
-        raise ValueError(f"Dtype inatteso per TIFF HR: {arr.dtype}")
+        raise ValueError(f"Unexpected dtype for HR TIFF: {arr.dtype}")
 
 
 def process_file(
@@ -103,66 +113,66 @@ def process_file(
 ):
     print(f"Processing {degraded_npy_path.name}")
 
-    # --- Carica input degradato (già upsampled alla risoluzione HR) ---
+    # --- Load degraded input (already upsampled to HR resolution) ---
     degraded = np.load(degraded_npy_path)  # (H, W, 3) float32
     if degraded.ndim != 3 or degraded.shape[-1] != 3:
-        print(f"  [SKIP] shape inattesa NPY degradato: {degraded.shape}")
+        print(f"  [SKIP] unexpected degraded NPY shape: {degraded.shape}")
         return 0
 
     H, W, _ = degraded.shape
 
     if H < patch_size or W < patch_size:
         print(
-            f"  [SKIP] {H}x{W} troppo piccola per patch {patch_size}x{patch_size}"
+            f"  [SKIP] {H}x{W} too small for {patch_size}x{patch_size} patch"
         )
         return 0
 
-    # --- Carica HR (ground truth) ---
+    # --- Load HR (ground truth) ---
     if not hr_tiff_path.exists():
-        print(f"  [SKIP] HR non trovato: {hr_tiff_path}")
+        print(f"  [SKIP] HR not found: {hr_tiff_path}")
         return 0
 
     hr = load_hr_tiff(hr_tiff_path)
 
-    # --- Sanitizzazione canali prima del crop ---
+    # --- Channel sanitization before cropping ---
     if hr.ndim == 2:
         hr = np.stack([hr, hr, hr], axis=-1)
     elif hr.ndim == 3 and hr.shape[-1] == 4:
         hr = hr[:, :, :3]
 
     if hr.shape != degraded.shape:
-        print(f"  [SKIP] Mismatch insanabile: HR {hr.shape} vs degradato {degraded.shape}")
+        print(f"  [SKIP] Unrecoverable mismatch: HR {hr.shape} vs degraded {degraded.shape}")
         return 0
 
-    # --- Carica maschera (riusata da make_masks.py, calcolata sull'immagine HR) ---
+    # --- Load mask (reused from make_masks.py, computed on the HR image) ---
     if not mask_path.exists():
-        print(f"  [SKIP] maschera non trovata: {mask_path}")
+        print(f"  [SKIP] mask not found: {mask_path}")
         return 0
 
     pixel_mask = np.load(mask_path)  # (H, W) bool
     if pixel_mask.shape != (H, W):
-        print(f"  [SKIP] maschera shape {pixel_mask.shape} != {H}x{W}")
+        print(f"  [SKIP] mask shape {pixel_mask.shape} != {H}x{W}")
         return 0
 
-    # --- Calcola posizioni valide ---
+    # --- Calculate valid positions ---
     candidate_mask = build_candidate_mask(pixel_mask, patch_size)
     n_candidates = int(candidate_mask.sum())
 
     if n_candidates == 0:
         print(
-            f"  [SKIP] nessuna posizione valida per patch {patch_size}x{patch_size}"
+            f"  [SKIP] no valid position for {patch_size}x{patch_size} patch"
         )
         return 0
 
     png_label = " + png" if input_png_dir is not None else ""
     print(
-        f"  Shape: {H}x{W} | Candidati: {n_candidates} | Crop: {crops_per_image}{png_label}"
+        f"  Shape: {H}x{W} | Candidates: {n_candidates} | Crops: {crops_per_image}{png_label}"
     )
 
     basename = degraded_npy_path.stem
     saved = 0
 
-    # Soglie (identiche a make_dataset.py, per evitare patch nere/piatte)
+    # Thresholds (identical to make_dataset.py, to avoid black/flat patches)
     THRESH_BLACK = 0.05
     THRESH_VAR = 1e-5
     MAX_RETRIES = 10
@@ -185,14 +195,14 @@ def process_file(
                 break
 
         if not valid_patch_found:
-            print(f"  [WARN] Impossibile trovare una patch non vuota per il crop {i} dopo {MAX_RETRIES} tentativi")
+            print(f"  [WARN] Impossible to find a non-empty patch for crop {i} after {MAX_RETRIES} attempts")
             continue
 
-        # Stesse coordinate (y, x) sull'HR: degraded e HR hanno stessa shape,
-        # quindi il crop è perfettamente allineato pixel a pixel.
+        # Same (y, x) coordinates on HR: degraded and HR have the same shape,
+        # so the crop is perfectly aligned pixel by pixel.
         patch_target = hr[y : y + patch_size, x : x + patch_size, :]
 
-        # Stessa augmentation per entrambe
+        # Same augmentation for both
         aug = random_aug_params()
         patch_input = apply_augmentation(patch_input, **aug)
         patch_target = apply_augmentation(patch_target, **aug)
@@ -202,45 +212,45 @@ def process_file(
         save_patch(patch_target, stem, target_npy_dir, target_png_dir)
         saved += 1
 
-    print(f"  Salvati {saved}/{crops_per_image} crop")
+    print(f"  Saved {saved}/{crops_per_image} crops")
     return saved
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Crea coppie (input_degradato, HR) per training del DDPM condizionato di super-resolution."
+        description="Creates (degraded_input, HR) pairs for conditioned DDPM super-resolution training."
     )
     parser.add_argument(
         "--degraded-dir",
         default="assets/outputs-degraded/npy",
-        help="NPY degradati generati da degrade_images.py",
+        help="Degraded NPYs generated by degrade_images.py",
     )
     parser.add_argument(
         "--hr-dir",
         default="assets/outputs-tiff",
-        help="TIFF HR (output di astro_stretch.py --save-tiff)",
+        help="HR TIFFs (output of astro_stretch.py --save-tiff)",
     )
     parser.add_argument(
         "--mask-dir",
         default="assets/outputs-mask",
-        help="Maschere da make_masks.py",
+        help="Masks from make_masks.py",
     )
     parser.add_argument(
         "--out-dir",
         default="dataset_su",
-        help="Cartella output (default: dataset_su)",
+        help="Output folder (default: dataset_su)",
     )
     parser.add_argument(
         "--patch-size",
         type=int,
         default=256,
-        help="Dimensione patch (default: 256)",
+        help="Patch size (default: 256)",
     )
     parser.add_argument(
         "--crops-per-image",
         type=int,
         default=50,
-        help="Crop per immagine (default: 50)",
+        help="Crops per image (default: 50)",
     )
     parser.add_argument(
         "--seed", type=int, default=42, help="Seed (default: 42)"
@@ -248,7 +258,7 @@ def main():
     parser.add_argument(
         "--save-png",
         action="store_true",
-        help="Salva anche le patch PNG (utile per debug visivo)",
+        help="Also save PNG patches (useful for visual debugging)",
     )
     args = parser.parse_args()
 
@@ -274,10 +284,10 @@ def main():
 
     degraded_files = sorted(degraded_dir.glob("*.npy"))
     if not degraded_files:
-        print(f"Nessun file .npy trovato in {degraded_dir}")
+        print(f"No .npy files found in {degraded_dir}")
         return
 
-    print(f"Trovati {len(degraded_files)} file NPY (degradati)")
+    print(f"Found {len(degraded_files)} NPY files (degraded)")
     print(f"Patch size : {args.patch_size}x{args.patch_size}")
     print(f"Crops/image: {args.crops_per_image}")
     print(f"Save PNG   : {args.save_png}")
@@ -298,7 +308,7 @@ def main():
             crops_per_image=args.crops_per_image,
         )
 
-    print(f"\nCompletato. Totale coppie salvate: {total}")
+    print(f"\nCompleted. Total pairs saved: {total}")
 
 
 if __name__ == "__main__":

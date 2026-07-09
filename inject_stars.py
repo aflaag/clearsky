@@ -1,3 +1,12 @@
+"""
+Synthetic Star Field Generator
+
+Synthesizes massive, highly realistic star fields onto starless base images.
+It uses a spatial grid algorithm to rapidly place thousands of real star "stamps" 
+extracted by the star library builder, avoiding unnatural overlaps via distance 
+checking, and applies additive blending to seamlessly integrate them.
+"""
+
 import argparse
 import json
 from pathlib import Path
@@ -7,7 +16,7 @@ import tifffile
 
 
 def load_starless_tiff(tiff_path):
-    """Carica un TIFF starless prodotto da StarNet2 (stessa convenzione di make_dataset.py)."""
+    """Loads a starless TIFF produced by StarNet2 (same convention as make_dataset.py)."""
     arr = tifffile.imread(tiff_path)
     if arr.dtype == np.uint16:
         return arr.astype(np.float32) / 65535.0
@@ -16,7 +25,7 @@ def load_starless_tiff(tiff_path):
     elif np.issubdtype(arr.dtype, np.floating):
         return arr.astype(np.float32)
     else:
-        raise ValueError(f"Dtype inatteso per TIFF starless: {arr.dtype}")
+        raise ValueError(f"Unexpected dtype for starless TIFF: {arr.dtype}")
 
 
 def load_library(lib_dir):
@@ -26,7 +35,7 @@ def load_library(lib_dir):
     with open(lib_dir / "field_density.json") as f:
         densities = json.load(f)
     if not metadata:
-        raise RuntimeError(f"Libreria vuota in {lib_dir}. Lancia prima build_star_library.py")
+        raise RuntimeError(f"Empty library in {lib_dir}. Run build_star_library.py first")
     return lib_dir / "stamps", metadata, np.array(densities)
 
 
@@ -36,7 +45,7 @@ def load_stamp(stamps_dir, meta):
 
 
 def augment_stamp(rgb, alpha):
-    """Stessa logica di apply_augmentation in make_dataset.py, applicata allo stamp."""
+    """Same logic as apply_augmentation in make_dataset.py, applied to the stamp."""
     if np.random.rand() < 0.5:
         rgb, alpha = np.fliplr(rgb), np.fliplr(alpha)
     if np.random.rand() < 0.5:
@@ -48,8 +57,8 @@ def augment_stamp(rgb, alpha):
 
 
 def paste_star(canvas, rgb, alpha, cy, cx, brightness_jitter):
-    """Blending ADDITIVO (screen-like): la luce della stella si somma a quella
-    di sfondo gia' presente, non la sostituisce.
+    """ADDITIVE blending (screen-like): the star's light is added to the 
+    already present background light, it does not replace it.
     """
     h, w = alpha.shape
     y0, x0 = cy - h // 2, cx - w // 2
@@ -85,14 +94,14 @@ def synthesize_field(base, pixel_mask, star_pool, density, min_sep_factor, max_a
         return canvas, 0
 
     n_stars = int(np.random.poisson(density * valid_area))
-    print(f"  -> Tentativo di posizionamento di {n_stars} stelle...")
+    print(f"  -> Attempting to place {n_stars} stars...")
 
-    # --- INIZIALIZZAZIONE GRIGLIA SPAZIALE ---
-    # Trova il raggio massimo assoluto nel pool per stabilire la dimensione di sicurezza delle celle
+    # --- SPATIAL GRID INITIALIZATION ---
+    # Find the absolute maximum radius in the pool to set the safe cell size
     max_radius = max(max(s[2], s[3]) / 2.0 for s in star_pool)
     cell_size = max(16, int(max_radius * 2) + 1)
     
-    # Dizionario che mappa (cell_y, cell_x) -> lista di [cy, cx, radius] delle stelle piazzate
+    # Dictionary mapping (cell_y, cell_x) -> list of [cy, cx, radius] of placed stars
     spatial_grid = {}
     n_placed = 0
 
@@ -108,7 +117,7 @@ def synthesize_field(base, pixel_mask, star_pool, density, min_sep_factor, max_a
             cell_y = cy // cell_size
             cell_x = cx // cell_size
 
-            # Recupera solo le stelle presenti nella cella corrente e nelle 8 vicine
+            # Retrieve only the stars present in the current cell and the 8 neighboring ones
             neighbors = []
             for dy in [-1, 0, 1]:
                 for dx in [-1, 0, 1]:
@@ -116,7 +125,7 @@ def synthesize_field(base, pixel_mask, star_pool, density, min_sep_factor, max_a
 
             ok = True
             if neighbors:
-                # Confronto locale vettorizzato fulmineo (frazioni di microsecondo)
+                # Lightning-fast vectorized local comparison (fractions of a microsecond)
                 narr = np.array(neighbors, dtype=np.float32)
                 dists_sq = (cy - narr[:, 0]) ** 2 + (cx - narr[:, 1]) ** 2
                 min_dists_sq = (min_sep_factor * (radius + narr[:, 2])) ** 2
@@ -126,7 +135,7 @@ def synthesize_field(base, pixel_mask, star_pool, density, min_sep_factor, max_a
 
             if ok:
                 paste_star(canvas, rgb, alpha, cy, cx, brightness_jitter)
-                # Registra la stella nella griglia spaziale
+                # Register the star in the spatial grid
                 spatial_grid.setdefault((cell_y, cell_x), []).append([cy, cx, radius])
                 n_placed += 1
                 break
@@ -136,22 +145,22 @@ def synthesize_field(base, pixel_mask, star_pool, density, min_sep_factor, max_a
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Sintetizza campi stellari massivi sopra le immagini starless usando un algoritmo a griglia spaziale."
+        description="Synthesizes massive star fields on top of starless images using a spatial grid algorithm."
     )
     parser.add_argument("--starless-dir", default="assets/outputs-starless")
     parser.add_argument("--mask-dir", default="assets/outputs-mask")
     parser.add_argument("--library-dir", default="assets/star_library")
     parser.add_argument("--out-dir", default="assets/outputs-npy-synthetic")
     parser.add_argument("--min-sep-factor", type=float, default=0.55,
-                        help="Distanza minima fra due stelle come frazione della somma dei raggi")
+                        help="Minimum distance between two stars as a fraction of the sum of their radii")
     parser.add_argument("--max-attempts", type=int, default=30,
-                        help="Tentativi di posizionamento prima di scartare una stella")
+                        help="Placement attempts before discarding a star")
     parser.add_argument("--density-scale", type=float, default=1.0,
-                        help="Fattore moltiplicativo sulla densita' stellare empirica")
+                        help="Multiplicative factor on the empirical stellar density")
     parser.add_argument("--brightness-jitter", type=float, default=0.15,
-                        help="Variazione casuale di luminosita' per stamp")
+                        help="Random brightness variation per stamp")
     parser.add_argument("--pool-size", type=int, default=5000,
-                        help="Numero di stelle da pre-caricare in RAM dal dataset complessivo")
+                        help="Number of stars to pre-load into RAM from the overall dataset")
     parser.add_argument("--seed", type=int, default=43)
     args = parser.parse_args()
 
@@ -163,11 +172,11 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     stamps_dir, metadata, densities = load_library(args.library_dir)
-    print(f"Libreria totale: {len(metadata)} stelle disponibili.")
+    print(f"Total library: {len(metadata)} available stars.")
 
-    # Cache speculativa in RAM per azzerare l'I/O da disco
+    # Speculative RAM cache to eliminate disk I/O
     pool_size = min(args.pool_size, len(metadata))
-    print(f"--> Caricamento di {pool_size} stelle in RAM per performance massime...")
+    print(f"--> Loading {pool_size} stars into RAM for maximum performance...")
     
     chosen_indices = np.random.choice(len(metadata), pool_size, replace=False)
     star_pool = []
@@ -176,11 +185,11 @@ def main():
         rgb, alpha = load_stamp(stamps_dir, meta)
         star_pool.append((rgb, alpha, meta["h"], meta["w"]))
     
-    print(f"--> RAM Cache completata. Densita' media: {densities.mean():.6f} px^-2")
+    print(f"--> RAM Cache completed. Average density: {densities.mean():.6f} px^-2")
 
     tif_files = sorted(starless_dir.glob("*.tif"))
     if not tif_files:
-        print(f"Nessun starless trovato in {starless_dir}")
+        print(f"No starless images found in {starless_dir}")
         return
 
     for tif_path in tif_files:
@@ -202,9 +211,9 @@ def main():
             args.min_sep_factor, args.max_attempts, args.brightness_jitter,
         )
         np.save(out_dir / f"{stem}.npy", canvas.astype(np.float32))
-        print(f"{stem}: {n_placed} stelle reali sintetizzate su {base.shape[1]}x{base.shape[0]} px.")
+        print(f"{stem}: {n_placed} real stars synthesized on {base.shape[1]}x{base.shape[0]} px.")
 
-    print(f"\nCompletato con successo. Output in {out_dir}")
+    print(f"\nCompleted successfully. Output in {out_dir}")
 
 
 if __name__ == "__main__":

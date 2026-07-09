@@ -1,14 +1,17 @@
 """
-make_masks.py
+Validity Mask Generator
 
-Calcola le maschere di validità dai FITS raw e le salva come:
-  - assets/outputs-mask/<basename>.npy  (bool, per make_dataset.py)
-  - assets/outputs-mask/preview/<basename>.png  (debug visivo, solo con --save-png)
+Computes pixel validity masks from raw FITS images to identify areas with valid 
+signal (ignoring background noise/empty space) using local variance thresholding. 
+These masks are saved as boolean NPY arrays and are subsequently used by the 
+dataset builders (e.g., make_dataset_sr.py, make_dataset_su.py) to ensure 
+training patches are only sampled from meaningful regions of the images.
 
-La maschera è calcolata sui dati raw FITS prima dello stretch,
-usando varianza locale con soglia 1e-05 sul canale verde.
+Outputs:
+  - assets/outputs-mask/<basename>.npy  (bool, for dataset builders)
+  - assets/outputs-mask/preview/<basename>.png  (visual debug, only with --save-png)
 
-Uso:
+Usage:
     python make_masks.py
     python make_masks.py --input-dir assets/inputs --mask-dir assets/outputs-mask
     python make_masks.py --threshold 1e-5 --window 16 --margin 0 --save-png
@@ -24,18 +27,18 @@ import argparse
 
 def compute_mask(data, window, threshold, margin):
     """
-    Calcola la maschera di validità (H, W) bool.
+    Computes the boolean validity mask (H, W).
 
-    data : np.ndarray (C, H, W) float32, dati raw prima dello stretch
-    window : int, dimensione finestra per varianza locale
-    threshold : float, soglia sulla varianza
-    margin : int, pixel da escludere sul perimetro (per il bordo fringe)
+    data: np.ndarray (C, H, W) float32, raw data before stretching
+    window: int, window size for local variance
+    threshold: float, variance threshold
+    margin: int, pixels to exclude on the perimeter (for fringe borders)
 
-    Restituisce maschera bool (H, W): True = pixel valido
+    Returns boolean mask (H, W): True = valid pixel
     """
     C, H, W = data.shape
 
-    # Usa il canale verde (indice 1) per la varianza
+    # Use the green channel (index 1) for variance
     gray = data[1].copy()
     gray = np.nan_to_num(gray, nan=0.0).astype(np.float32)
 
@@ -45,7 +48,7 @@ def compute_mask(data, window, threshold, margin):
 
     mask = variance > threshold
 
-    # Margine perimetrale fisso (esclude il bordo fringe)
+    # Fixed perimeter margin (excludes the fringe border)
     if margin > 0:
         mask[:margin,  :] = False
         mask[-margin:, :] = False
@@ -57,12 +60,12 @@ def compute_mask(data, window, threshold, margin):
 
 def save_debug_png(gray_raw, mask, out_path, max_size=1024):
     """
-    Salva un PNG di debug: immagine in scala di grigi con
-    overlay rosso dove la maschera è invalida.
+    Saves a debug PNG: grayscale image with a red overlay 
+    where the mask is invalid.
     """
     H, W = gray_raw.shape
 
-    # Stretch per la preview
+    # Stretch for the preview
     valid_pixels = gray_raw[mask] if mask.any() else gray_raw.ravel()
     if len(valid_pixels) == 0 or valid_pixels.max() == valid_pixels.min():
         gray_norm = np.zeros_like(gray_raw)
@@ -73,7 +76,7 @@ def save_debug_png(gray_raw, mask, out_path, max_size=1024):
             vmax = vmin + 1e-6
         gray_norm = np.clip((gray_raw - vmin) / (vmax - vmin), 0, 1)
 
-    # Scala a max_size
+    # Scale to max_size
     scale = min(max_size / H, max_size / W, 1.0)
     th, tw = int(H * scale), int(W * scale)
 
@@ -81,7 +84,7 @@ def save_debug_png(gray_raw, mask, out_path, max_size=1024):
     gray_img  = Image.fromarray(gray_8bit).resize((tw, th), Image.BILINEAR)
     rgb_img   = gray_img.convert("RGB")
 
-    # Overlay rosso dove invalido
+    # Red overlay where invalid
     invalid_small = Image.fromarray(((~mask).astype(np.uint8) * 255)).resize(
         (tw, th), Image.NEAREST
     )
@@ -98,7 +101,7 @@ def process_fits(fits_path, mask_npy_dir, mask_png_dir, window, threshold, margi
 
     already_done = npy_out.exists() and (not save_png or png_out.exists())
     if already_done:
-        print(f"[SKIP] {fits_path.name}: già processato")
+        print(f"[SKIP] {fits_path.name}: already processed")
         return
 
     print(f"Processing {fits_path.name}")
@@ -111,17 +114,17 @@ def process_fits(fits_path, mask_npy_dir, mask_png_dir, window, threshold, margi
             data = np.transpose(data, (2, 0, 1))  # (H,W,3) -> (3,H,W)
 
         if data.shape[0] != 3:
-            print(f"  [SKIP] shape inattesa: {data.shape}")
+            print(f"  [SKIP] unexpected shape: {data.shape}")
             return
 
         mask = compute_mask(data, window, threshold, margin)
         pct  = mask.mean() * 100
-        print(f"  Validi: {pct:.1f}%  |  shape: {data.shape[1]}x{data.shape[2]}")
+        print(f"  Valid: {pct:.1f}%  |  shape: {data.shape[1]}x{data.shape[2]}")
 
-        # Salva maschera NPY
+        # Save NPY mask
         np.save(npy_out, mask)
 
-        # Salva debug PNG (opzionale)
+        # Save debug PNG (optional)
         if save_png:
             mask_png_dir.mkdir(parents=True, exist_ok=True)
             gray_raw = np.nan_to_num(data[1], nan=0.0)
@@ -136,14 +139,14 @@ def process_fits(fits_path, mask_npy_dir, mask_png_dir, window, threshold, margi
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Genera maschere di validità dai FITS raw."
+        description="Generates validity masks from raw FITS files."
     )
-    parser.add_argument("--input-dir",  default="assets/inputs",       help="Cartella FITS")
-    parser.add_argument("--mask-dir",   default="assets/outputs-mask",  help="Cartella output maschere")
-    parser.add_argument("--threshold",  type=float, default=1e-5,       help="Soglia varianza (default: 1e-5)")
-    parser.add_argument("--window",     type=int,   default=16,         help="Finestra varianza in pixel (default: 16)")
-    parser.add_argument("--margin",     type=int,   default=0,          help="Margine perimetrale da escludere in pixel (default: 0)")
-    parser.add_argument("--save-png",   action="store_true",            help="Salva PNG di debug con overlay maschera")
+    parser.add_argument("--input-dir",  default="assets/inputs",       help="FITS folder")
+    parser.add_argument("--mask-dir",   default="assets/outputs-mask", help="Mask output folder")
+    parser.add_argument("--threshold",  type=float, default=1e-5,      help="Variance threshold (default: 1e-5)")
+    parser.add_argument("--window",     type=int,   default=16,        help="Variance window in pixels (default: 16)")
+    parser.add_argument("--margin",     type=int,   default=0,         help="Perimeter margin to exclude in pixels (default: 0)")
+    parser.add_argument("--save-png",   action="store_true",           help="Save debug PNG with mask overlay")
     args = parser.parse_args()
 
     input_dir    = Path(args.input_dir)
@@ -151,7 +154,7 @@ def main():
     mask_png_dir = Path(args.mask_dir) / "preview"
 
     mask_npy_dir.mkdir(parents=True, exist_ok=True)
-    # mask_png_dir creata solo se necessario, dentro process_fits
+    # mask_png_dir created only if necessary, inside process_fits
 
     fits_files = sorted(
         list(input_dir.glob("*.fits"))
@@ -160,16 +163,16 @@ def main():
     )
 
     if not fits_files:
-        print(f"Nessun file FITS trovato in {input_dir}")
+        print(f"No FITS files found in {input_dir}")
         return
 
-    print(f"Trovati {len(fits_files)} file FITS")
+    print(f"Found {len(fits_files)} FITS files")
     print(f"threshold={args.threshold:.0e} | window={args.window}px | margin={args.margin}px | save_png={args.save_png}\n")
 
     for f in fits_files:
         process_fits(f, mask_npy_dir, mask_png_dir, args.window, args.threshold, args.margin, args.save_png)
 
-    print("\nCompletato.")
+    print("\nCompleted.")
 
 
 if __name__ == "__main__":

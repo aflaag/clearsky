@@ -1,20 +1,20 @@
-#!/usr/bin/env python3
 """
-Applica i difetti reali (dead/hot pixel) a una qualsiasi composizione,
-usando le posizioni e i valori osservati REALMENTE nell'acquisizione
-originale - non una sintesi statistica.
+Applies real defects (dead/hot pixels) to any composition,
+using the positions and values ACTUALLY observed in the original
+acquisition - not a statistical synthesis.
 
-defect_mask  = dove l'immagine originale (con difetti) e quella corretta
-               (detect_pixel_defects.py) differiscono
-defect_value = il valore osservato REALE in quelle posizioni, nell'originale
+defect_mask  = where the original image (with defects) and the corrected one
+               (detect_pixel_defects.py) differ
+defect_value = the ACTUAL observed value at those positions, in the original
 
-Va applicato per ULTIMO nella catena (dopo eventuale inject_stars.py e
-degrade_images.py): fisicamente i dead/hot pixel sono un difetto del
-sensore in lettura, quindi il valore riportato in quelle posizioni e'
-in gran parte indipendente dal segnale "vero" sottostante (sintetico o
-reale che sia). Per questo la modalita' di default e' "replace" (copia
-il valore osservato reale), non "additive" (somma un delta).
+It must be applied LAST in the chain (after any inject_stars.py and
+degrade_images.py): physically, dead/hot pixels are a sensor readout defect, 
+so the value reported at those positions is largely independent of the 
+underlying "true" signal (whether synthetic or real). For this reason, 
+the default mode is "replace" (copies the real observed value), not 
+"additive" (adds a delta).
 """
+
 import argparse
 from pathlib import Path
 
@@ -23,7 +23,7 @@ import tifffile
 
 
 def load_image(path):
-    """Carica .npy direttamente, oppure .tif a 16/8-bit normalizzato in [0,1]."""
+    """Loads .npy directly, or 16/8-bit .tif normalized in [0,1]."""
     if path.suffix == ".npy":
         return np.load(path).astype(np.float32)
 
@@ -33,7 +33,7 @@ def load_image(path):
     elif arr.dtype == np.uint8:
         arr = arr.astype(np.float32) / 255.0
     else:
-        raise ValueError(f"Dtype inatteso per {path}: {arr.dtype}")
+        raise ValueError(f"Unexpected dtype for {path}: {arr.dtype}")
 
     if arr.ndim == 2:
         arr = np.stack([arr, arr, arr], axis=-1)
@@ -54,33 +54,33 @@ def find_file(directory, basename):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Applica i difetti reali a una composizione (ultimo step della catena)."
+        description="Applies real defects to a composition (last step in the chain)."
     )
     parser.add_argument(
         "--original-dir", default="assets/outputs-npy",
-        help="NPY stretchati originali CON difetti (output di astro_stretch.py)",
+        help="Original stretched NPYs WITH defects (output of astro_stretch.py)",
     )
     parser.add_argument(
         "--corrected-dir", default="assets/clean/pixelfix-npy",
-        help="NPY corretti (output di detect_pixel_defects.py --output-dir)",
+        help="Corrected NPYs (output of detect_pixel_defects.py --output-dir)",
     )
     parser.add_argument(
         "--composite-dir", required=True,
-        help="Composizione corrente: .npy o .tif (output di inject_stars.py / "
-             "degrade_images.py, oppure direttamente il riferimento pulito se "
-             "i difetti sono l'unica degradazione attiva in questa combo)",
+        help="Current composition: .npy or .tif (output of inject_stars.py / "
+             "degrade_images.py, or directly the clean reference if "
+             "defects are the only active degradation in this combo)",
     )
     parser.add_argument("--out-dir", required=True)
     parser.add_argument(
         "--mode", choices=["replace", "additive"], default="replace",
-        help="replace (default): sostituisce il pixel con il valore osservato "
-             "reale, fisicamente piu' corretto per dead/hot pixel fissi. "
-             "additive: somma il delta originale-corretto al valore corrente.",
+        help="replace (default): replaces the pixel with the real observed "
+             "value, physically more correct for fixed dead/hot pixels. "
+             "additive: adds the original-corrected delta to the current value.",
     )
     parser.add_argument(
         "--defect-eps", type=float, default=1e-6,
-        help="Soglia sulla differenza assoluta originale-corretto per contare "
-             "un pixel come difetto (default: 1e-6, come in make_dataset_ir.py)",
+        help="Threshold on the absolute difference between original and corrected "
+             "to count a pixel as defective (default: 1e-6, as in make_dataset_ir.py)",
     )
     args = parser.parse_args()
 
@@ -92,7 +92,7 @@ def main():
 
     composite_files = sorted(composite_dir.glob("*.npy")) + sorted(composite_dir.glob("*.tif"))
     if not composite_files:
-        print(f"Nessun file .npy/.tif trovato in {composite_dir}")
+        print(f"No .npy/.tif files found in {composite_dir}")
         return
 
     n_ok = 0
@@ -106,7 +106,7 @@ def main():
         corrected_path = find_file(corrected_dir, basename)
 
         if original_path is None or corrected_path is None:
-            print(f"[SKIP] {basename}: originale o corretto mancante")
+            print(f"[SKIP] {basename}: missing original or corrected")
             n_skipped += 1
             continue
 
@@ -116,8 +116,8 @@ def main():
 
         if not (original.shape == corrected.shape == composite.shape):
             print(
-                f"[SKIP] {basename}: shape incoerenti - originale {original.shape}, "
-                f"corretto {corrected.shape}, composito {composite.shape}"
+                f"[SKIP] {basename}: inconsistent shapes - original {original.shape}, "
+                f"corrected {corrected.shape}, composite {composite.shape}"
             )
             n_skipped += 1
             continue
@@ -135,11 +135,11 @@ def main():
 
         n_defect_px = int(defect_mask.sum())
         total_defect_px += n_defect_px
-        print(f"{basename}: {n_defect_px} pixel difettosi applicati")
+        print(f"{basename}: {n_defect_px} defective pixels applied")
         n_ok += 1
 
-    print(f"\nCompletato. Immagini processate: {n_ok}, skippate: {n_skipped}")
-    print(f"Pixel difettosi totali applicati: {total_defect_px}")
+    print(f"\nCompleted. Processed images: {n_ok}, skipped: {n_skipped}")
+    print(f"Total defective pixels applied: {total_defect_px}")
 
 
 if __name__ == "__main__":

@@ -1,20 +1,19 @@
-#!/usr/bin/env python3
 """
-Genera il manifest condiviso dei crop (posizione + augmentation) a partire
-dal riferimento "doppiamente pulito" (starless + defect-free, HR).
+Generates the shared crop manifest (position + augmentation) starting from 
+the "doubly clean" reference (starless + defect-free, HR).
 
-Il manifest garantisce che make_dataset_merged.py estragga LA STESSA porzione
-di cielo, con LA STESSA augmentation, da tutte le 7 combinazioni di
-degradazione: l'allineamento non dipende dal seed dei singoli
-make_dataset_xx.py, che si e' visto divergere tra script diversi anche a
-parita' di seed (il retry loop consuma un numero di chiamate RNG che dipende
-dal contenuto pixel, quindi diverso tra combo diverse).
+The manifest ensures that make_dataset_merged.py extracts THE SAME sky 
+portion, with THE SAME augmentation, from all 7 degradation combinations:
+the alignment does not depend on the seed of the individual make_dataset_xx.py 
+scripts, which has been seen diverging across different scripts even with the 
+same seed (the retry loop consumes a number of RNG calls that depends on the 
+pixel content, thus varying across combos).
 
-Le posizioni vengono scelte e validate SOLO sul riferimento pulito condiviso:
-ogni combo derivata (SR, IR, SU, e le loro unioni) eredita esattamente le
-stesse coordinate, senza ricampionare.
+Positions are chosen and validated ONLY on the shared clean reference: 
+each derived combo (SR, IR, SU, and their unions) inherits exactly the 
+same coordinates, without resampling.
 
-Uso tipico:
+Typical usage:
     python build_crop_manifest.py \
         --clean-dir assets/outputs-clean \
         --mask-dir assets/outputs-mask \
@@ -29,9 +28,9 @@ import tifffile
 
 
 def build_candidate_mask(pixel_mask, patch_size):
-    """Integral image (summed area table) sulla maschera pixel.
+    """Integral image (summed area table) on the pixel mask.
 
-    Restituisce mappa bool (H, W) dei top-left validi per patch.
+    Returns a boolean map (H, W) of valid top-left coordinates for patches.
     """
     H, W = pixel_mask.shape
     p = patch_size
@@ -61,7 +60,7 @@ def build_candidate_mask(pixel_mask, patch_size):
 
 
 def sample_position(candidate_mask):
-    """Campiona una posizione top-left casuale tra quelle valide."""
+    """Samples a random top-left position from the valid ones."""
     ys, xs = np.where(candidate_mask)
     if len(ys) == 0:
         return None, None
@@ -70,7 +69,7 @@ def sample_position(candidate_mask):
 
 
 def random_aug_params():
-    """Campiona parametri di augmentation casuali."""
+    """Samples random augmentation parameters."""
     return {
         "flip_h": bool(np.random.rand() < 0.5),
         "flip_v": bool(np.random.rand() < 0.5),
@@ -79,7 +78,7 @@ def random_aug_params():
 
 
 def load_reference(path):
-    """Carica il riferimento pulito condiviso: .npy oppure .tif a 16/8-bit."""
+    """Loads the shared clean reference: .npy or 16/8-bit .tif."""
     if path.suffix == ".npy":
         return np.load(path).astype(np.float32)
 
@@ -89,7 +88,7 @@ def load_reference(path):
     elif arr.dtype == np.uint8:
         arr = arr.astype(np.float32) / 255.0
     else:
-        raise ValueError(f"Dtype inatteso per {path}: {arr.dtype}")
+        raise ValueError(f"Unexpected dtype for {path}: {arr.dtype}")
 
     if arr.ndim == 2:
         arr = np.stack([arr, arr, arr], axis=-1)
@@ -99,7 +98,7 @@ def load_reference(path):
 
 
 def find_reference_file(clean_dir, basename):
-    """Cerca prima .npy poi .tif per il basename dato."""
+    """Searches for .npy first, then .tif for the given basename."""
     npy_path = clean_dir / f"{basename}.npy"
     if npy_path.exists():
         return npy_path
@@ -111,36 +110,36 @@ def find_reference_file(clean_dir, basename):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Genera crop_manifest.json condiviso tra le 7 combinazioni "
-                    "di degradazione, campionando posizione e augmentation UNA "
-                    "SOLA VOLTA sul riferimento pulito (starless + defect-free, HR)."
+        description="Generates crop_manifest.json shared across the 7 degradation "
+                    "combinations, sampling position and augmentation ONLY ONCE "
+                    "on the clean reference (starless + defect-free, HR)."
     )
     parser.add_argument(
         "--clean-dir",
         default="assets/outputs-clean",
-        help="Riferimento doppiamente pulito (starless + defect-free, HR). "
-             "Cerca prima .npy poi .tif per ciascun basename.",
+        help="Doubly clean reference (starless + defect-free, HR). "
+             "Searches for .npy first, then .tif for each basename.",
     )
     parser.add_argument(
         "--mask-dir",
         default="assets/outputs-mask",
-        help="Maschere di validita' da make_masks.py",
+        help="Validity masks from make_masks.py",
     )
     parser.add_argument(
         "--out",
         default="crop_manifest.json",
-        help="Percorso di output del manifest (default: crop_manifest.json)",
+        help="Output path for the manifest (default: crop_manifest.json)",
     )
     parser.add_argument("--patch-size", type=int, default=256)
     parser.add_argument("--crops-per-image", type=int, default=50)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--thresh-black", type=float, default=0.05,
-        help="Media minima della patch sul riferimento pulito (default: 0.05)",
+        help="Minimum patch mean on the clean reference (default: 0.05)",
     )
     parser.add_argument(
         "--thresh-var", type=float, default=1e-5,
-        help="Varianza minima della patch sul riferimento pulito (default: 1e-5)",
+        help="Minimum patch variance on the clean reference (default: 1e-5)",
     )
     parser.add_argument("--max-retries", type=int, default=10)
     args = parser.parse_args()
@@ -152,7 +151,7 @@ def main():
 
     mask_files = sorted(mask_dir.glob("*.npy"))
     if not mask_files:
-        print(f"Nessuna maschera trovata in {mask_dir}")
+        print(f"No masks found in {mask_dir}")
         return
 
     manifest = []
@@ -164,13 +163,13 @@ def main():
         basename = mask_path.stem
         ref_path = find_reference_file(clean_dir, basename)
         if ref_path is None:
-            print(f"[SKIP] {basename}: riferimento pulito non trovato in {clean_dir}")
+            print(f"[SKIP] {basename}: clean reference not found in {clean_dir}")
             n_basenames_skipped += 1
             continue
 
         reference = load_reference(ref_path)
         if reference.ndim != 3 or reference.shape[-1] != 3:
-            print(f"[SKIP] {basename}: shape inattesa {reference.shape}")
+            print(f"[SKIP] {basename}: unexpected shape {reference.shape}")
             n_basenames_skipped += 1
             continue
 
@@ -178,15 +177,15 @@ def main():
         H, W = pixel_mask.shape
         if reference.shape[:2] != (H, W):
             print(
-                f"[SKIP] {basename}: mismatch riferimento {reference.shape[:2]} "
-                f"vs maschera {(H, W)}"
+                f"[SKIP] {basename}: mismatch between reference {reference.shape[:2]} "
+                f"and mask {(H, W)}"
             )
             n_basenames_skipped += 1
             continue
 
         candidate_mask = build_candidate_mask(pixel_mask, args.patch_size)
         if candidate_mask.sum() == 0:
-            print(f"[SKIP] {basename}: nessuna posizione valida per patch {args.patch_size}")
+            print(f"[SKIP] {basename}: no valid position for patch {args.patch_size}")
             n_basenames_skipped += 1
             continue
 
@@ -204,7 +203,7 @@ def main():
                     break
 
             if not valid:
-                print(f"  [WARN] {basename}: crop {i} scartato dopo {args.max_retries} tentativi")
+                print(f"  [WARN] {basename}: crop {i} discarded after {args.max_retries} attempts")
                 continue
 
             aug = random_aug_params()
@@ -217,7 +216,7 @@ def main():
             })
             saved_for_this_image += 1
 
-        print(f"{basename}: {saved_for_this_image}/{args.crops_per_image} crop nel manifest")
+        print(f"{basename}: {saved_for_this_image}/{args.crops_per_image} crops in manifest")
         total_saved += saved_for_this_image
         n_basenames_ok += 1
 
@@ -232,9 +231,9 @@ def main():
             indent=2,
         )
 
-    print(f"\nCompletato. Immagini ok: {n_basenames_ok}, skippate: {n_basenames_skipped}")
-    print(f"Crop totali nel manifest: {total_saved}")
-    print(f"Manifest salvato in: {args.out}")
+    print(f"\nCompleted. OK images: {n_basenames_ok}, skipped: {n_basenames_skipped}")
+    print(f"Total crops in manifest: {total_saved}")
+    print(f"Manifest saved to: {args.out}")
 
 
 if __name__ == "__main__":

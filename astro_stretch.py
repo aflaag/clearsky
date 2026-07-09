@@ -1,3 +1,21 @@
+"""
+FITS Batch Processor with Adaptive Arcsinh Stretch
+
+This script processes directories of astronomical FITS images (typically RGB) 
+by applying an adaptive arcsinh stretch. It calculates the black and white 
+points based on configurable percentiles and stretches the data to enhance 
+faint details while preventing star core clipping.
+
+Key Features:
+- Processes single FITS files or batches of them.
+- Supports "paired" processing: calculates the optimal stretch parameters on a 
+  reference (e.g., noisy) image and strictly applies those exact same parameters 
+  to a paired (e.g., denoised/background-extracted) image to ensure consistent 
+  brightness and background scaling.
+- Outputs normalized 32-bit floating-point `.npy` arrays.
+- Optionally outputs 16-bit `.tif` images for standard visual inspection.
+"""
+
 import argparse
 from pathlib import Path
 from astropy.io import fits
@@ -6,7 +24,7 @@ import tifffile
 
 
 def compute_stretch_params(data_array, black_percentile=1.0, white_percentile=99.7, linked=False):
-    """Calcola black/white (per canale, o unico se linked) da un array (C,H,W)."""
+    """Calculates black/white points (per channel, or a single value if linked) from a (C,H,W) array."""
     clean = np.nan_to_num(data_array, nan=0.0, posinf=0.0, neginf=0.0).astype(np.float32)
 
     if linked:
@@ -28,7 +46,7 @@ def compute_stretch_params(data_array, black_percentile=1.0, white_percentile=99
 
 
 def apply_arcsinh_stretch(data_array, params, stretch=8.0):
-    """Applica lo stretch arcsinh usando parametri black/white GIÀ CALCOLATI (fissi)."""
+    """Applies the arcsinh stretch using ALREADY CALCULATED (fixed) black/white parameters."""
     clean = np.nan_to_num(data_array, nan=0.0, posinf=0.0, neginf=0.0).astype(np.float32)
     stretched = np.zeros_like(clean, dtype=np.float32)
 
@@ -45,27 +63,29 @@ def apply_arcsinh_stretch(data_array, params, stretch=8.0):
 
 
 def adaptive_arcsinh_stretch(data_array, stretch=8.0, black_percentile=1.0, white_percentile=99.7, linked=False):
-    """Wrapper retrocompatibile: calcola i parametri e applica lo stretch in un solo step.
-    Ora ritorna (stretched, params) invece del solo array, per permettere il riuso dei
-    parametri su un'immagine accoppiata."""
+    """
+    Backward-compatible wrapper: calculates the parameters and applies the stretch in a single step.
+    Now returns (stretched, params) instead of just the array, to allow reusing the
+    parameters on a paired image.
+    """
     params = compute_stretch_params(data_array, black_percentile, white_percentile, linked)
     stretched = apply_arcsinh_stretch(data_array, params, stretch=stretch)
     return stretched, params
 
 
 def load_fits_rgb(fits_path):
-    """Carica un FITS e lo normalizza in (3,H,W) float32. Solleva ValueError se non valido."""
+    """Loads a FITS file and normalizes it to (3,H,W) float32. Raises ValueError if invalid."""
     with fits.open(fits_path) as hdul:
         data = hdul[0].data
 
     if data is None:
-        raise ValueError("dati mancanti")
+        raise ValueError("missing data")
     if data.ndim != 3:
-        raise ValueError(f"shape {data.shape}")
+        raise ValueError(f"invalid shape {data.shape}")
     if data.shape[-1] == 3:
         data = np.transpose(data, (2, 0, 1))
     if data.shape[0] != 3:
-        raise ValueError("servono 3 canali RGB")
+        raise ValueError("requires 3 RGB channels")
 
     return data.astype(np.float32)
 
@@ -93,10 +113,10 @@ def process_fits_file(
     paired_output_tiff_dir=None,
 ):
     """
-    Processa un FITS applicando lo stretch arcsinh.
-    Se paired_fits_path è fornito (es. l'output GraXpert dello stesso target), i parametri
-    di stretch vengono calcolati SOLO sull'immagine principale (rumorosa) e riapplicati
-    IDENTICI all'immagine accoppiata, per evitare mismatch di background/scala tra input e target.
+    Processes a FITS file by applying an arcsinh stretch.
+    If paired_fits_path is provided (e.g., GraXpert output of the same target), the stretch 
+    parameters are calculated ONLY on the main (noisy) image and applied IDENTICALLY 
+    to the paired image, to avoid background/scale mismatches between input and target.
     """
     print(f"Processing {fits_path}")
     basename = fits_path.stem
@@ -114,7 +134,7 @@ def process_fits_file(
         already_done = already_done and paired_npy_path.exists() and (not save_tiff or paired_tiff_path.exists())
 
     if already_done:
-        print(f"[SKIP] {fits_path.name}: già processato")
+        print(f"[SKIP] {fits_path.name}: already processed")
         return
 
     try:
@@ -129,13 +149,13 @@ def process_fits_file(
 
     stretched, params = adaptive_arcsinh_stretch(data, linked=linked)
     save_outputs(stretched, basename, output_npy_dir, output_tiff_dir, save_tiff)
-    print(f"[OK] {fits_path.name} (npy{' + tiff 16-bit' if save_tiff else ''})")
+    print(f"[OK] {fits_path.name} (npy{' + 16-bit tiff' if save_tiff else ''})")
 
     if paired_fits_path is None:
         return
 
     if not paired_fits_path.exists():
-        print(f"[WARN] {fits_path.name}: manca il corrispondente {paired_fits_path.name}, salto il paired output")
+        print(f"[WARN] {fits_path.name}: missing corresponding {paired_fits_path.name}, skipping paired output")
         return
 
     try:
@@ -150,22 +170,22 @@ def process_fits_file(
 
     paired_stretched = apply_arcsinh_stretch(paired_data, params)
     save_outputs(paired_stretched, basename, paired_output_npy_dir, paired_output_tiff_dir, save_tiff)
-    print(f"[OK] {paired_fits_path.name} (paired, stretch riusato da {fits_path.name})")
+    print(f"[OK] {paired_fits_path.name} (paired, stretch reused from {fits_path.name})")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Batch processing FITS con stretch arcsinh adattivo.")
-    parser.add_argument("--input-dir", default="assets/inputs", help="Cartella contenente i FITS rumorosi")
-    parser.add_argument("--output-npy", default="assets/outputs-npy", help="Cartella output .npy")
-    parser.add_argument("--output-tiff", default="assets/outputs-tiff", help="Cartella output TIFF (con --save-tiff)")
-    parser.add_argument("--linked", action="store_true", help="Usa lo stesso stretch per tutti i canali")
-    parser.add_argument("--save-tiff", action="store_true", help="Salva anche il TIFF stretched a 16-bit")
+    parser = argparse.ArgumentParser(description="Batch processing FITS with adaptive arcsinh stretch.")
+    parser.add_argument("--input-dir", default="assets/inputs", help="Folder containing the noisy FITS")
+    parser.add_argument("--output-npy", default="assets/outputs-npy", help="Output folder for .npy files")
+    parser.add_argument("--output-tiff", default="assets/outputs-tiff", help="Output folder for TIFF files (with --save-tiff)")
+    parser.add_argument("--linked", action="store_true", help="Use the same stretch across all channels")
+    parser.add_argument("--save-tiff", action="store_true", help="Also save the 16-bit stretched TIFF")
 
     parser.add_argument(
         "--paired-dir",
         default=None,
-        help="Cartella con i FITS accoppiati (es. output GraXpert), stesso basename di --input-dir. "
-        "Se fornita, lo stretch viene calcolato SOLO sul FITS rumoroso e riapplicato identico al paired.",
+        help="Folder containing paired FITS (e.g., GraXpert output), using the same basename as --input-dir. "
+        "If provided, the stretch is calculated ONLY on the noisy FITS and applied identically to the paired one.",
     )
     parser.add_argument("--paired-output-npy", default="assets/outputs-npy-clean")
     parser.add_argument("--paired-output-tiff", default="assets/outputs-tiff-clean")
@@ -186,7 +206,7 @@ def main():
     fits_files = sorted(
         list(input_dir.glob("*.fits")) + list(input_dir.glob("*.fit")) + list(input_dir.glob("*.FITS"))
     )
-    print(f"Trovati {len(fits_files)} file FITS dentro {input_dir}.")
+    print(f"Found {len(fits_files)} FITS files in {input_dir}.")
 
     for fits_file in fits_files:
         paired_fits_path = None
@@ -194,7 +214,7 @@ def main():
             candidates = [paired_dir / f"{fits_file.stem}{ext}" for ext in (".fits", ".fit", ".FITS")]
             paired_fits_path = next((c for c in candidates if c.exists()), None)
             if paired_fits_path is None:
-                print(f"[WARN] {fits_file.name}: nessun corrispondente in {paired_dir}, salto il paired output")
+                print(f"[WARN] {fits_file.name}: no match found in {paired_dir}, skipping paired output")
 
         process_fits_file(
             fits_file,
@@ -207,7 +227,7 @@ def main():
             paired_output_tiff_dir=paired_output_tiff_dir if paired_dir else None,
         )
 
-    print("Completato.")
+    print("Completed.")
 
 
 if __name__ == "__main__":

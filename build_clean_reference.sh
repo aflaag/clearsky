@@ -1,12 +1,23 @@
 #!/bin/bash
 set -e
-# Costruisce il riferimento "doppiamente pulito" (starless + defect-free, HR)
-# condiviso da tutte le 7 combinazioni.
+
+# ==============================================================================
+# Clean Reference Builder
+#
+# This script builds the "doubly clean" reference images (starless + defect-free,
+# High Resolution) which are shared as the ground truth across all 7 degradation 
+# combinations in the pipeline.
+#
+# Pipeline steps:
+# 1. Runs detect_pixel_defects.py to fix hot/dead pixels on the stretched images.
+# 2. Runs StarNet2 on the defect-corrected images to remove stars and generate
+#    the final starless references and star masks.
+# ==============================================================================
 
 CLEAN_DIR="assets/clean"
 mkdir -p "$CLEAN_DIR"
 
-echo "******** [1/2] detect_pixel_defects.py sul npy stretchato originale ********"
+echo "******** [1/2] Running detect_pixel_defects.py on the original stretched npy ********"
 python detect_pixel_defects.py \
     --input-dir assets/outputs-npy \
     --mask-dir assets/outputs-mask \
@@ -17,7 +28,7 @@ python detect_pixel_defects.py \
     --save-tiff \
     --save-mask-tiff
 
-echo "******** [2/2] StarNet2 sul TIFF gia' corretto dai difetti ********"
+echo "******** [2/2] Running StarNet2 on the defect-corrected TIFF ********"
 mkdir -p "$CLEAN_DIR/starless-tiff"
 mkdir -p "$CLEAN_DIR/starmask-tiff"
 
@@ -27,7 +38,7 @@ for img in "$CLEAN_DIR"/pixelfix-tiff/*.tiff; do
     mask="$CLEAN_DIR/starmask-tiff/${basename}.tif"
 
     if [ -f "$output" ] && [ -f "$mask" ]; then
-        echo "[SKIP] $basename: gia' processato (starless e mask presenti)"
+        echo "[SKIP] $basename: already processed (starless and mask present)"
         continue
     fi
 
@@ -38,6 +49,6 @@ for img in "$CLEAN_DIR"/pixelfix-tiff/*.tiff; do
         --mask "$mask"
 done
 
-echo "******** Fatto ********"
-echo "Riferimento doppiamente pulito (starless + defect-free, HR): $CLEAN_DIR/starless-tiff"
-echo "Da usare come --clean-dir per build_crop_manifest.py e come --target-dir per make_dataset_merged.py"
+echo "******** Done ********"
+echo "Doubly clean reference (starless + defect-free, HR): $CLEAN_DIR/starless-tiff"
+echo "To be used as --clean-dir for build_crop_manifest.py and as --target-dir for make_dataset_merged.py"
