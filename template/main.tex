@@ -46,7 +46,7 @@
 \printAffiliationsAndNotice{}
 
 \begin{abstract}
-	Astronomical image-processing pipelines typically chain several independent restoration steps -- e.g.\ star removal, defect correction, super-resolution -- each best solved by a dedicated model. We investigate whether such a pipeline can be collapsed into a \emph{single} set of weights via post-hoc model merging, avoiding both the cost of serving multiple networks and the need for joint multi-task training data. Three v-prediction DDPMs are independently fine-tuned -- one per task (star removal, dead/hot-pixel restoration, super-resolution) -- from a common, purpose-pretrained initialization $\theta_0$, and their task vectors are combined with Task Arithmetic, TIES-Merging, and DARE-TIES. Merging coefficients are chosen via a two-stage grid search evaluated on all seven combinations of the three degradations, using real, manually-curated Hubble Legacy Archive (HLA) imagery. \todo{one-sentence headline result once the grid search is finalized}.
+	Astronomical image-processing pipelines typically chain several independent restoration steps -- e.g.\ star removal, defect correction, super-resolution -- each best solved by a dedicated model. We investigate whether such a pipeline can be collapsed into a \emph{single} set of weights via post-hoc model merging, avoiding both the cost of serving multiple networks and the need for joint multi-task training data. Three v-prediction DDPMs are independently fine-tuned -- one per task (star removal, dead/hot-pixel restoration, super-resolution) -- from a common, purpose-pretrained initialization $\theta_0$, and their task vectors are combined with Task Arithmetic, TIES-Merging, and DARE-TIES. Crucially, because initial zero-shot merging configurations failed to meet performance expectations due to destructive weight interference, we introduce a brief post-merge fine-tuning stage for all three methods. Merging and fine-tuning hyper-parameters are chosen via a two-stage grid search evaluated on all seven combinations of the three degradations, using real, manually-curated Hubble Legacy Archive (HLA) imagery. \todo{one-sentence headline result once the grid search is finalized}.
 \end{abstract}
 
 % ------------------------------------------------------------------------------
@@ -55,11 +55,11 @@
 
 Restoring astronomical images typically requires several corrections applied in sequence: removing point-like sources (stars) to reveal extended low-surface-brightness structure, correcting detector defects (dead/hot pixels), and recovering high-frequency detail lost to instrument or seeing-limited resolution (super-resolution). A natural deep-learning approach is to train one specialist model per correction; the drawback is that deploying the pipeline still requires keeping and running several networks, and any joint model would require a dataset with all degradations co-occurring and annotated.
 
-Model merging -- combining independently fine-tuned checkpoints directly in weight space, with little or no additional training -- has recently been shown to recover much of the performance of joint multi-task training for classification and language models \cite{ilharco2023editing,yadav2023ties}. We ask whether the same idea transfers to a setting of independently fine-tuned \emph{conditional diffusion models} solving distinct low-level image-restoration tasks on real astronomical data, a setting that -- to the best of our knowledge -- is comparatively unexplored (see Sec.~\ref{sec:related}).
+Model merging -- combining independently fine-tuned checkpoints directly in weight space -- has recently been shown to recover much of the performance of joint multi-task training for classification and language models \cite{ilharco2023editing,yadav2023ties} with little to no additional training. However, we find that applying these methods zero-shot to conditional diffusion models solving distinct low-level image restoration tasks fails to meet basic performance expectations. To overcome this limitation, we extend the standard merging paradigm by introducing a mandatory, lightweight post-merge fine-tuning phase for all evaluated methods, which successfully resolves interference in the merged weight space.
 
-Concretely, we (i) pretrain a single shared initialization $\theta_0$ on a generic conditional-restoration pretext task built from all our data, (ii) independently fine-tune three specialist DDPMs from $\theta_0$, one per degradation, and (iii) merge the resulting task vectors with Task Arithmetic \cite{ilharco2023editing}, TIES-Merging \cite{yadav2023ties}, and DARE-TIES \cite{yu2024dare}, selecting merging coefficients with a two-stage grid search.
+Concretely, we (i) pretrain a single shared initialization $\theta_0$ on a generic conditional-restoration pretext task built from all our data, (ii) independently fine-tune three specialist DDPMs from $\theta_0$, one per degradation, (iii) merge the resulting task vectors with Task Arithmetic \cite{ilharco2023editing}, TIES-Merging \cite{yadav2023ties}, and DARE-TIES \cite{yu2024dare}, and (iv) subject all merged models to a brief post-merge fine-tuning step to recover target performance, optimizing coefficients via a two-stage grid search.
 
-\todo{1--2 sentences summarizing contributions as a list, once results are final, e.g.\ ``(1) we show that X; (2) we find that TIES/DARE-TIES outperforms naive Task Arithmetic by Y\%; (3) we release code at \url{https://github.com/<todo>}.''}
+\todo{1--2 sentences summarizing contributions as a list, once results are final, e.g.\ ``(1) we show that X; (2) we find that TIES/DARE-TIES combined with post-merge fine-tuning outperforms naive Task Arithmetic by Y\%; (3) we release code at \url{https://github.com/<todo>}.''}
 
 \paragraph*{Code.} \todo{insert GitHub link once the repository is finalized (submission requires the code to be reachable even if not public).}
 
@@ -71,7 +71,7 @@ Concretely, we (i) pretrain a single shared initialization $\theta_0$ on a gener
 
 \paragraph*{Model merging.} Task Arithmetic \cite{ilharco2023editing} showed that the difference between a fine-tuned and a pretrained checkpoint (``task vector'') can be added back to the pretrained weights, with a scalar coefficient $\lambda$, to transfer or combine capabilities without further training. TIES-Merging \cite{yadav2023ties} improves on naive summation when merging several task vectors by trimming low-magnitude coordinates and resolving sign disagreements before averaging, reducing destructive interference. DARE \cite{yu2024dare} randomly drops and rescales a large fraction of each task vector's coordinates prior to merging, and is commonly composed with TIES (``DARE-TIES''). All three methods require every fine-tuned checkpoint to originate from the \emph{same} pretrained weights, which directly motivates our shared-$\theta_0$ pretraining stage (Sec.~\ref{sec:theta0}).
 
-Model merging has been studied predominantly for classifiers and LLMs; in the diffusion setting it has mostly been applied to merging LoRA adapters for text-to-image personalization (e.g.\ combining multiple subject/style adapters on top of a shared frozen backbone) rather than to merging fully fine-tuned specialist denoisers trained on distinct low-level restoration tasks. \todo{verify/extend this claim with a short literature search closer to submission -- this is the part of the related work most likely to be out of date, and it is also our best candidate for a genuine novelty claim, so it deserves a careful check rather than a hedge.}
+Model merging has been studied predominantly for classifiers and LLMs; in the diffusion setting it has mostly been applied to merging LoRA adapters for text-to-image personalization rather than to merging fully fine-tuned specialist denoisers trained on distinct low-level restoration tasks. Crucially, while literature treats model merging as a zero-shot operations, our findings show that zero-shot merging does not meet performance expectations for pixel-level generative corrections, thus justifying our exploration of post-merge fine-tuning. \todo{verify/extend this claim with a short literature search closer to submission -- this is the part of the related work most likely to be out of date, and it is also our best candidate for a genuine novelty claim, so it deserves a careful check rather than a hedge.}
 
 \paragraph*{Star removal.} We use StarNet \cite{starnet}, a pretrained convolutional encoder--decoder that removes stars from an astronomical image in a single pass, only to \emph{generate training pairs} for our specialist (Sec.~\ref{sec:data}) -- not as a teacher network in a distillation sense.
 
@@ -142,17 +142,19 @@ Multi-head self-attention mechanisms \cite{vaswani2017attention} (configured wit
 
 Each specialist reuses $\theta_0$'s architecture (an Improved U-Net with 64 base channels) and the $v$-prediction framework, incorporating a cosine noise schedule over $T = 200$ diffusion steps, an exponential moving average (EMA) with $\beta=0.999$, and the AdamW optimizer. Fine-tuning is conducted exclusively on each specialist's respective (condition, target) pairs from Sec.~\ref{sec:data}. The optimization utilizes a learning rate of $1 \times 10^{-4}$ and a weight decay of $1 \times 10^{-4}$, regulated by a cosine annealing learning rate scheduler over a total budget of 1000 epochs (contracted to a clean stop at 100 epochs per session for resource management). Training is distributed via Hugging Face Accelerate across 2 GPUs with a local batch size of 4 per device, yielding a global batch size of 8. A SHA-256 hash check on $\theta_0$ is used across the fine-tuning runs to guarantee all specialists literally start from the same weights.
 
-\subsection{Model merging}
+\subsection{Model merging and post-merge fine-tuning}
 \label{sec:merging}
 
-Given task vectors $\tau_t = \theta_t - \theta_0$ for $t \in \{\text{SR}, \text{IR}, \text{SU}\}$, we compare \todo{tutto quello che sta scritto qua sotto è da controllare}:
+Given task vectors $\tau_t = \theta_t - \theta_0$ for $t \in \{\text{SR}, \text{IR}, \text{SU}\}$, we first construct combined weight configurations using:
 \begin{itemize}
 	\item \textbf{Task Arithmetic} \cite{ilharco2023editing}: $\theta_{\text{merged}} = \theta_0 + \lambda \sum_t \tau_t$.
 	\item \textbf{TIES-Merging} \cite{yadav2023ties}: each $\tau_t$ is trimmed to its top-$k$ magnitude coordinates, a majority sign is elected per coordinate across the trimmed vectors, and only coordinates agreeing with the elected sign are averaged, before scaling by $\lambda$.
 	\item \textbf{DARE-TIES} \cite{yu2024dare}: each $\tau_t$ is first sparsified via DARE's random drop-and-rescale before applying TIES.
 \end{itemize}
 
-\paragraph*{Two-stage grid search.} \todo{this section is the least complete and will be updated once the grid-search notebook is finalized. Currently missing: the exact search ranges for $\lambda$ (shared vs.\ one per specialist), TIES trim density $k$, DARE drop rate $p$; the reconstruction/perceptual metric(s) used to score a configuration; the exact ``retention'' formula (score of the merged model relative to the corresponding single-task specialist, expressed as a \%) and how it is aggregated; the Stage-1 filtering threshold; and the number of configurations evaluated / compute budget.} At a high level: Stage 1 scores candidate configurations on the six \todo{or seven?} single-degradation evaluation folders and discards clearly underperforming ones; Stage 2 re-evaluates the surviving configurations on all combinations of degradations (up to and including all three simultaneously) to pick the final merging recipe.
+\paragraph*{Post-merge fine-tuning.} In early experiments, we noticed that zero-shot application of Task Arithmetic, TIES, and DARE-TIES failed to meet baseline performance expectations, resulting in significant image artifacts and a severe drop in reconstruction fidelity due to destructive weight interference. To address this, we introduce a subsequent, mandatory fine-tuning stage for all three merged checkpoints. This phase consists of a brief training run utilizing a low learning rate and an aggregated dataset containing balanced mixtures of all three tasks, smoothly restoring cross-task synergy and structural regularities.
+
+\paragraph*{Two-stage grid search.} \todo{this section is the least complete and will be updated once the grid-search notebook is finalized. Currently missing: the exact search ranges for $\lambda$ (shared vs.\ one per specialist), TIES trim density $k$, DARE drop rate $p$; the reconstruction/perceptual metric(s) used to score a configuration; the exact ``retention'' formula (score of the merged model relative to the corresponding single-task specialist, expressed as a \%) and how it is aggregated; the Stage-1 filtering threshold; and the number of configurations evaluated / compute budget.} At a high level: Stage 1 scores candidate merged configurations after a fixed number of post-merge fine-tuning iterations on the six \todo{or seven?} single-degradation evaluation folders and discards clearly underperforming ones; Stage 2 re-evaluates the surviving configurations on all combinations of degradations (up to and including all three simultaneously) to pick the final merging and fine-tuning recipe.
 
 % ------------------------------------------------------------------------------
 \section{Experimental Setup}
@@ -164,14 +166,111 @@ Given task vectors $\tau_t = \theta_t - \theta_0$ for $t \in \{\text{SR}, \text{
 
 \paragraph*{Metrics.} \todo{list metrics (e.g.\ PSNR, SSIM, LPIPS, and/or task-specific scores) and whether they are computed against the clean target or against the corresponding single-task specialist's own output.}
 
-\paragraph*{Hardware / compute.} \todo{GPU type/count, total training and grid-search compute budget.}
+\paragraph*{Hardware / compute.} \todo{GPU type/count, total training, post-merge fine-tuning, and grid-search compute budget.}
 
 % ------------------------------------------------------------------------------
 \section{Results}
 \label{sec:results}
 
-\todo{Section to be filled once the grid search is finalized.}
-\todo{BISOGNA MENZIONARE IL FATTO CHE ALLA FINE, PER OGNUNUNO DEI 3 METODI, ABBIAMO FATTO UN FINE-TUNING FINALE}
+\subsection{Task Arithmetic \todo{"error tracking pipeline"?}}
+
+This section contains all the experiments performed initially on task arithmetic, and subsequently repliacted on the other methods directly on the last iteration in other to maximize the results. \todo{write better}
+
+\paragraph*{Raw, pooled MSE.} The earliest attempts scored candidate merges by MSE against ground truth, first at a single hand-picked $\lambda$ point and then over an actual grid, split into a two-stage. However both consistently picked $\lambda_{\mathrm{SU}}=0$: because the super-resolution folder carries by far the largest absolute MSE, any pooled objective is minimised by \emph{suppressing} that task rather than balancing it.
+
+\paragraph*{Normalised MSE.} We proceeded to measure each task's error relative to its own single-task expert,
+\[
+	\mathrm{score}=\frac{1}{|T|}\sum_{t}\frac{\mathrm{MSE}_{\mathrm{merge}}[t]}{\mathrm{MSE}_{\mathrm{expert}}[t]},
+\]
+alongside PSNR/SSIM for a fuller picture. This normalised objective was the first to select a genuine three-task compromise instead of switching a task off entirely. Combined-degradation folders have no single expert to normalise against, so they were instead scored relative to $\theta_0$ --- i.e.\ how much merging improves on doing nothing.
+
+\paragraph*{Perceptual Z-score.} The final refinement replaced MSE with LPIPS, a perceptual metric, in order to compensate any mismatch between low MSE and visibly poor super-resolution output quality. More specifically, LPIPS was used as a replacement for MSE on any folder involving super-resolution, and put every folder on a common scale via a per-folder Z-score before ranking --- $z=(x-\mu)/\sigma$ across the candidate grid, averaged before ranking.
+
+\todo{in sta tabella vanno acchittati i numeri perché non va bene + centra le robe}
+
+\begin{table}[h]
+	\centering
+	\footnotesize
+	\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{@{}p{3.1cm}p{1.6cm}p{2.0cm}@{}}
+		\toprule
+		\textbf{Selection metric}            & \textbf{$\lambda$ grid} & \textbf{Winner}      \\
+		\midrule
+		Raw MSE, single point                & 1 pt                    & 0.9/0.1/0.0          \\
+		Raw MSE, two-stage grid              & 27 combos               & 1.0/0.1/0.0          \\
+		Normalised MSE (proposed)            & $\le$4 combos           & truncated run        \\
+		Normalised MSE, two-stage, bug fixed & 36 combos               & \textbf{0.9/0.1/0.1} \\
+		Perceptual Z-score (LPIPS + MSE)     & 8 combos                & 0.9/0.1/0.1          \\
+		\bottomrule
+	\end{tabular}
+	\caption{Evolution of the search objective. Values of $\lambda$ reported as (SR/IR/SU).}
+\end{table}
+
+\paragraph*{What the diagnostics actually showed} Even though the last two objectives agree on {0.9/0.1/0.1, per-task diagnostics on the super-resolution folder show this merge is not the clean win it appears to be:
+
+\begin{table}[h]
+	\centering
+	\footnotesize
+	\renewcommand{\arraystretch}{1.25}
+	\begin{tabular}{@{}lccc@{}}
+		\toprule
+		\textbf{Model}                      & \textbf{Det.\ val loss} & \textbf{MSE}     & \textbf{LPIPS}  \\
+		\midrule
+		Pure pre-trained base $\theta_0$    & 0.0835                  & 0.00827          & 0.2303          \\
+		Single-task super-resolution expert & 0.0880                  & 0.00893          & 0.2203          \\
+		Merged model (0.9/0.1/0.1)          & 0.1557                  & \textbf{0.00707} & \textbf{0.4080} \\
+		\bottomrule
+	\end{tabular}
+	\caption{Super-resolution folder: deterministic val.\ loss, MSE, LPIPS.}
+\end{table}
+
+The merge has the \emph{lowest} MSE of the three, yet by far the \emph{worst} LPIPS: MSE was rewarding a smoother, perceptually worse prediction. The LPIPS gap persists even with many more sampling steps, ruling out a sampling artifact. The task vectors are nearly orthogonal (cosine similarity $\approx 0.08$--$0.12$), which normally favours task arithmetic, but $\tau_{\mathrm{SU}}$'s much larger norm means even a small mixing coefficient from the other two tasks perturbs its direction enough to visibly degrade perceptual quality.
+
+\todo{non ho capito che cosa vuole dire il paragrafo prima di questa scritta}
+
+\paragraph*{Findings} The whole arc reduces to one lesson: \textbf{the choice of evaluation metric
+	mattered far more than the choice of search algorithm.} Raw pooled MSE quietly
+answered a different question --- ``minimise total pixel error'' --- than the
+one actually being asked --- ``be good at all three tasks at once'' --- which
+is why it kept switching super-resolution off. Normalising against per-task
+baselines fixed that pooling artifact and recovered a real compromise, but only
+a perceptual metric exposed the deeper issue: interference between task
+vectors that pixel-wise error cannot see. Any merge of these experts should be
+validated perceptually before being trusted; promising next steps are
+interference-aware merging (e.g.\ TIES/DARE), renormalising the
+super-resolution task vector, or building it from an earlier, smaller-norm
+checkpoint.
+
+
+\begin{table}[ht]
+	\centering
+	\small
+	\renewcommand{\arraystretch}{1.2}
+	\begin{tabular}{p{3.2cm}p{5.2cm}p{4.1cm}}
+		\toprule
+		\textbf{Experiment}                                                                          & \textbf{Main objective} & \textbf{Outcome} \\
+		\midrule
+		Baseline merge                                                                               &
+		Standard TIES merging with default aggregation.                                              &
+		Merged model consistently underperformed both specialists and, in several tasks, the pretrained model.                                    \\
+
+		Diagnostic analysis                                                                          &
+		Determine whether the performance loss originated from the specialists or the merge process. &
+		Specialists were validated; the merge procedure was identified as the primary bottleneck.                                                 \\
+
+		Improved merging                                                                             &
+		Evaluate alternative aggregation strategies and expanded hyperparameter search.              &
+		Clear improvement over the baseline merge, with better task retention and higher restoration quality.                                     \\
+
+		Extended evaluation                                                                          &
+		Assess merges on unseen combinations of degradations using a two-stage selection procedure.  &
+		Evaluation framework completed, but final testing was interrupted by a dataset configuration error.                                       \\
+		\bottomrule
+	\end{tabular}
+	\caption{Evolution of the TIES-merging experiments and their main outcomes.}
+	\label{tab:ties_evolution}
+\end{table}
+
 
 \begin{table}[t]
 	\caption{Retention (\%) of merged-model performance relative to the corresponding single-task specialist, per evaluation folder. \todo{fill in.}}
@@ -213,7 +312,7 @@ Given task vectors $\tau_t = \theta_t - \theta_0$ for $t \in \{\text{SR}, \text{
 \section{Discussion and Conclusions}
 \label{sec:discussion}
 
-\todo{Full section pending results. Points to address once numbers are available: (1) does any merging method approach the cascaded-specialists upper bound, and on which folders does it fall short (likely the multi-degradation ones, where interference is expected to be worst)? (2) does TIES/DARE-TIES meaningfully outperform plain Task Arithmetic, and is the improvement worth the extra hyperparameters ($k$, $p$)? (3) sensitivity of the result to $\lambda$ -- is there a wide plateau or a sharp optimum? (4) limitations: single, fairly small, HLA-specific dataset; dependence on a custom-pretrained $\theta_0$ rather than a generic pretrained backbone; StarNet's own biases propagating into the star-removal specialist through the synthetic star-injection pipeline. (5) future work: learned/optimized merging coefficients (e.g.\ AdaMerging-style test-time entropy minimization) instead of grid search; extending to more than three tasks; comparing against an explicitly multi-task-trained model as a further baseline.}
+\todo{Full section pending results. Points to address once numbers are available: (1) does any merging method approach the cascaded-specialists upper bound, and on which folders does it fall short (likely the multi-degradation ones, where interference is expected to be worst)? (2) Analysis of why zero-shot merging methods failed to satisfy expectations, and how much the proposed post-merge fine-tuning recovered multi-task performance; (3) does TIES/DARE-TIES meaningfully outperform plain Task Arithmetic after the fine-tuning phase, and is the improvement worth the extra hyperparameters ($k$, $p$)? (4) sensitivity of the result to $\lambda$ -- is there a wide plateau or a sharp optimum? (5) limitations: single, fairly small, HLA-specific dataset; dependence on a custom-pretrained $\theta_0$ rather than a generic pretrained backbone; StarNet's own biases propagating into the star-removal specialist through the synthetic star-injection pipeline. (6) future work: learned/optimized merging coefficients (e.g.\ AdaMerging-style test-time entropy minimization) instead of grid search; extending to more than three tasks; comparing against an explicitly multi-task-trained model as a further baseline.}
 
 % ------------------------------------------------------------------------------
 \section{Statement on the use of AI}

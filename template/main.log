@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.6.22)  9 JUL 2026 16:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.6.22)  9 JUL 2026 19:44
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -444,17 +444,12 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 ]
-Underfull \hbox (badness 3635) in paragraph at lines 74--75
-\OT1/ptm/m/n/10 per-son-al-iza-tion (e.g. com-bin-ing mul-ti-ple sub-ject/style
- []
-
-
 Underfull \hbox (badness 1661) in paragraph at lines 85--86
  []\OT1/ptm/b/n/10 Source im-agery. \OT1/ptm/m/n/10 We start from a man-u-ally cu-rated
  []
 
 
-Underfull \vbox (badness 6047) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [2]
 Overfull \hbox (58.99423pt too wide) in paragraph at lines 105--115
@@ -467,26 +462,25 @@ Underfull \hbox (badness 3323) in paragraph at lines 121--121
  []
 
 
-Underfull \hbox (badness 1668) in paragraph at lines 134--135
-[]\OT1/ptm/m/n/10 Multi-head self-attention mech-a-nisms ([][]Vaswani et al.[][],
- []
-
-
-Underfull \vbox (badness 1454) has occurred while \output is active []
+Underfull \vbox (badness 2020) has occurred while \output is active []
 
  [3
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.135 
+l.133 
       
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.135 
+l.133 
       ]
+Underfull \hbox (badness 1668) in paragraph at lines 134--135
+[]\OT1/ptm/m/n/10 Multi-head self-attention mech-a-nisms ([][]Vaswani et al.[][],
+ []
+
 LaTeX Font Info:    Trying to load font information for OMS+ptm on input line 138.
- (/usr/share/texmf-dist/tex/latex/psnfss/omsptm.fd
+(/usr/share/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
@@ -504,67 +498,131 @@ Underfull \hbox (badness 2103) in paragraph at lines 151--152
 \OT1/ptm/m/n/10 vec-tors, and only co-or-di-nates agree-ing with the
  []
 
-
-Underfull \hbox (badness 3098) in paragraph at lines 165--166
+[4]
+Underfull \hbox (badness 3098) in paragraph at lines 167--168
  []\OT1/ptm/b/n/10 Metrics. [][TODO: list met-rics (e.g. PSNR, SSIM,
  []
 
 
-Underfull \hbox (badness 1117) in paragraph at lines 173--175
-\OT1/ptm/b/n/10 fi-nal-ized.][] [][TODO: BISOGNA MEN-ZIONARE IL
+Underfull \hbox (badness 8094) in paragraph at lines 200--200
+[]\OT1/ptm/m/n/9 Raw MSE, two-stage
  []
 
-[4]
-Underfull \hbox (badness 10000) in paragraph at lines 201--201
+
+Underfull \hbox (badness 10000) in paragraph at lines 203--203
+[]\OT1/ptm/m/n/9 Perceptual Z-score
+ []
+
+
+Overfull \hbox (27.20035pt too wide) in paragraph at lines 215--224
+ [][] 
+ []
+
+[5
+pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.228 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.228 
+      ]
+Underfull \hbox (badness 5345) in paragraph at lines 255--256
+\OT1/ptm/m/n/9 der-per-formed both spe-cial-ists
+ []
+
+
+Underfull \hbox (badness 1383) in paragraph at lines 258--258
+\OT1/ptm/m/n/9 orig-i-nated from the spe-cial-ists or the
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 262--262
+\OT1/ptm/m/n/9 gies and ex-panded hy-per-pa-ram-e-ter
+ []
+
+
+Underfull \hbox (badness 6110) in paragraph at lines 263--264
+[]\OT1/ptm/m/n/9 Clear im-prove-ment over the
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 267--268
+[]\OT1/ptm/m/n/9 Evaluation frame-work com-
+ []
+
+
+Underfull \hbox (badness 3179) in paragraph at lines 267--268
+\OT1/ptm/m/n/9 pleted, but fi-nal test-ing was
+ []
+
+
+Overfull \hbox (156.78192pt too wide) in paragraph at lines 249--270
+ [][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 300--300
 [][][][]\OT1/ptm/b/n/9 [TODO: Grid-search land-scape for the best-
  []
 
 
-Underfull \hbox (badness 2237) in paragraph at lines 208--208
+Underfull \hbox (badness 2237) in paragraph at lines 307--307
 [][][][]\OT1/ptm/b/n/9 [TODO: Qual-i-ta-tive com-par-i-son across merg-ing
  []
 
 
-Underfull \vbox (badness 2626) has occurred while \output is active []
+Underfull \hbox (badness 1024) in paragraph at lines 315--316
+\OT1/ptm/b/n/10 (6) fu-ture work: learned/optimized merg-ing co-ef-fi-
+ []
 
- (./main.bbl [5
-pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
+[6
+pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.22 
-     
+l.324 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.324 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.22 
-     
+l.324 
+      ] (./main.bbl) [7
 pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.22 
-     ]) [6
-
-] (./main.aux)
+l.332 \end{document}
+                    ] (./main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
- ) 
+ )
+(\end occurred inside a group at level 1)
+
+### simple group (level 1) entered at line 209 ({)
+### bottom level 
 Here is how much of TeX's memory you used:
- 11352 strings out of 469463
- 169402 string characters out of 5469428
- 592802 words of memory out of 5000000
- 39770 multiletter control sequences out of 15000+600000
+ 11366 strings out of 469463
+ 169591 string characters out of 5469428
+ 594868 words of memory out of 5000000
+ 39773 multiletter control sequences out of 15000+600000
  652163 words of font info for 89 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 75i,11n,79p,1146b,611s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (6 pages, 195549 bytes).
+ 75i,11n,79p,1248b,611s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (7 pages, 217107 bytes).
 PDF statistics:
- 235 PDF objects out of 1000 (max. 8388607)
- 195 compressed objects within 2 object streams
- 52 named destinations out of 1000 (max. 500000)
+ 258 PDF objects out of 1000 (max. 8388607)
+ 214 compressed objects within 3 object streams
+ 63 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
