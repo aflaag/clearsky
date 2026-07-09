@@ -1,0 +1,65 @@
+\begin{thebibliography}{11}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ho \& Salimans(2022)Ho and Salimans]{ho2022cfg}
+Ho, J. and Salimans, T.
+\newblock Classifier-free diffusion guidance.
+\newblock \emph{arXiv preprint arXiv:2207.12598}, 2022.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020ddpm}
+Ho, J., Jain, A., and Abbeel, P.
+\newblock Denoising diffusion probabilistic models.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, volume~33, pp.\  6840--6851, 2020.
+
+\bibitem[Ilharco et~al.(2023)Ilharco, Ribeiro, Wortsman, Schmidt, and Hajishirzi]{ilharco2023editing}
+Ilharco, G., Ribeiro, M.~T., Wortsman, M., Schmidt, L., and Hajishirzi, H.
+\newblock Editing models with task arithmetic.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2023.
+
+\bibitem[Misiura(2020)]{starnet}
+Misiura, N.
+\newblock Starnet: Star removal software for astronomical images.
+\newblock \url{https://www.starnetastro.com/}, 2020.
+\newblock Accessed: 2026-07-09.
+
+\bibitem[Nichol \& Dhariwal(2021)Nichol and Dhariwal]{nichol2021improved}
+Nichol, A.~Q. and Dhariwal, P.
+\newblock Improved denoising diffusion probabilistic models.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, pp.\  8162--8171, 2021.
+
+\bibitem[Ronneberger et~al.(2015)Ronneberger, Fischer, and Brox]{ronneberger2015unet}
+Ronneberger, O., Fischer, P., and Brox, T.
+\newblock U-net: Convolutional networks for biomedical image segmentation.
+\newblock In \emph{Medical Image Computing and Computer-Assisted Intervention (MICCAI)}, pp.\  234--241, 2015.
+
+\bibitem[Salimans \& Ho(2022)Salimans and Ho]{salimans2022progressive}
+Salimans, T. and Ho, J.
+\newblock Progressive distillation for fast sampling of diffusion models.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2022.
+
+\bibitem[{Space Telescope Science Institute (STScI)}(2006)]{hla}
+{Space Telescope Science Institute (STScI)}.
+\newblock Hubble legacy archive (hla).
+\newblock \url{https://hla.stsci.edu/}, 2006.
+\newblock STScI, ESA, and CADC.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin]{vaswani2017attention}
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.~N., Kaiser, {\L}., and Polosukhin, I.
+\newblock Attention is all you need.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, volume~30, 2017.
+
+\bibitem[Yadav et~al.(2023)Yadav, Albahahar, Choshen, Raffel, and Bansal]{yadav2023ties}
+Yadav, P., Albahahar, D., Choshen, L., Raffel, C., and Bansal, M.
+\newblock Ties-merging: Resolving interference when merging models.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, volume~36, pp.\  7175--7193, 2023.
+
+\bibitem[Yu et~al.(2024)Yu, Yu, Yu, Li, Liu, Wang, Zhang, and Lin]{yu2024dare}
+Yu, L., Yu, B., Yu, H.~J., Li, J., Liu, Z., Wang, D., Zhang, F., and Lin, W.
+\newblock Language models are super mario: Absorbing abilities from homologous models through a task vector archive.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2024.
+
+\end{thebibliography}
