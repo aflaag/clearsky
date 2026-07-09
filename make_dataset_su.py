@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-import tifffile  # Per leggere i TIFF HR a 16-bit
+import tifffile
 
 
 def build_candidate_mask(pixel_mask, patch_size):
@@ -133,7 +133,6 @@ def process_file(
     if hr.shape != degraded.shape:
         print(f"  [SKIP] Mismatch insanabile: HR {hr.shape} vs degradato {degraded.shape}")
         return 0
-    # -------------------------------------------------
 
     # --- Carica maschera (riusata da make_masks.py, calcolata sull'immagine HR) ---
     if not mask_path.exists():

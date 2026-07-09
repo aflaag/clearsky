@@ -3,25 +3,10 @@ set -e
 # Costruisce le 7 cartelle di input per le combinazioni di degradazione,
 # a partire dal riferimento doppiamente pulito (assets/clean/starless-tiff,
 # generato da build_clean_reference.sh).
-#
-# Ordine di applicazione: stelle -> bassa risoluzione -> difetti (ultimo).
-# Stesso motivo pratico per cui in build_clean_reference.sh correggiamo i
-# difetti PRIMA di far girare StarNet2 (rischio di scambiare un hot pixel
-# per una stella): qui, al contrario, i difetti vanno reintrodotti DOPO
-# aver sintetizzato le stelle, altrimenti staremmo nascondendo un difetto
-# sotto una stella sintetica invece di sovrapporlo correttamente sopra.
-#
-# OTTIMIZZAZIONE: inject_stars.py e degrade_images.py, chiamati con lo
-# stesso seed sullo stesso input, producono output IDENTICO in piu' combo
-# (es. SR, SR_IR, SR_SU, SR_IR_SU condividono tutte lo stesso campo
-# stellare sintetico). Invece di richiamarli 4 volte ciascuno (costoso:
-# inject_stars ricarica 5000 star stamp in RAM e rifa' il posizionamento a
-# griglia spaziale ad ogni run), li eseguiamo una sola volta e riusiamo
-# l'output per tutte le combo che ne hanno bisogno.
 
 CLEAN_TIFF="assets/clean/starless-tiff"
 MASK_DIR="assets/outputs-mask"
-LIBRARY_DIR="assets/star_library"   # default di inject_stars.py - correggi se hai usato --library-dir diverso
+LIBRARY_DIR="assets/star_library"
 ORIG_NPY="assets/outputs-npy"
 CORRECTED_NPY="assets/clean/pixelfix-npy"
 OUT="assets/combos"
@@ -84,7 +69,7 @@ ls "$OUT"
 echo ""
 echo "Target condiviso per make_dataset_merged.py: $CLEAN_TIFF"
 echo ""
-echo "Prossimi step:"
+echo "A seguire:"
 echo "  1. python build_crop_manifest.py --clean-dir $CLEAN_TIFF --mask-dir $MASK_DIR"
 echo "  2. per ciascuna delle 7 cartelle in $OUT: python make_dataset_merged.py --input-dir $OUT/<COMBO> --target-dir $CLEAN_TIFF --out-dir dataset_merged/<COMBO>"
 echo "  3. python check_combo_alignment.py dataset_merged/*"

@@ -28,9 +28,9 @@ fi
 
 echo "******** Starting make_dataset_su.py ********"
 if [ "$SAVE_PNG" = true ]; then
-    python make_dataset_su.py --crops-per-image 5 --save-png
+    python make_dataset_su.py --crops-per-image 200 --save-png
 else
-    python make_dataset_su.py --crops-per-image 5
+    python make_dataset_su.py --crops-per-image 200
 fi
 
 echo "******** Pipeline SU completata ********"

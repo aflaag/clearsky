@@ -2,15 +2,6 @@
 set -e
 # Costruisce il riferimento "doppiamente pulito" (starless + defect-free, HR)
 # condiviso da tutte le 7 combinazioni.
-#
-# Ordine: prima la correzione dei difetti (sul npy stretchato originale),
-# POI StarNet2 sul risultato gia' corretto - non sul TIFF originale come
-# nella pipeline star-removal esistente. Motivo: se StarNet2 vede ancora
-# hot pixel non corretti, rischia di scambiarli per stelle puntiformi
-# (falsi positivi nella maschera stelle).
-#
-# La libreria di star stamps NON viene ricostruita qui: riusa quella gia'
-# generata dalla pipeline star-removal esistente per inject_stars.py.
 
 CLEAN_DIR="assets/clean"
 mkdir -p "$CLEAN_DIR"
@@ -49,4 +40,4 @@ done
 
 echo "******** Fatto ********"
 echo "Riferimento doppiamente pulito (starless + defect-free, HR): $CLEAN_DIR/starless-tiff"
-echo "Usalo come --clean-dir per build_crop_manifest.py e come --target-dir per make_dataset_merged.py"
+echo "Da usare come --clean-dir per build_crop_manifest.py e come --target-dir per make_dataset_merged.py"

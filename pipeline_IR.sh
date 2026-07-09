@@ -27,9 +27,9 @@ python detect_pixel_defects.py --save-tiff --save-mask-tiff --sigma 10
 
 echo "******** Starting make_dataset_sr.py ********"
 if [ "$SAVE_PNG" = true ]; then
-    python make_dataset_ir.py --crops-per-image 5 --save-png
+    python make_dataset_ir.py --crops-per-image 200 --save-png
 else
-    python make_dataset_ir.py --crops-per-image 5
+    python make_dataset_ir.py --crops-per-image 200
 fi
 
 echo "******** Pipeline IR completata ********"

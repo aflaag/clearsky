@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-import tifffile  # Aggiunto per gestire correttamente i TIFF a 16-bit
+import tifffile
 
 
 def build_candidate_mask(pixel_mask, patch_size):
@@ -124,7 +124,6 @@ def process_file(
 
     starless = load_starless_tiff(starless_path)
 
-    # --- FIX: Sanitizzazione canali prima del crop ---
     if starless.ndim == 2:
         # Se è in scala di grigi (1 canale), la duplichiamo su 3 canali RGB
         starless = np.stack([starless, starless, starless], axis=-1)
@@ -136,7 +135,6 @@ def process_file(
     if starless.shape != synthetic.shape:
         print(f"  [SKIP] Mismatch insanabile: starless {starless.shape} vs input sintetico {synthetic.shape}")
         return 0
-    # -------------------------------------------------
 
     # --- Carica maschera ---
     if not mask_path.exists():

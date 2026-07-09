@@ -47,7 +47,7 @@ def apply_arcsinh_stretch(data_array, params, stretch=8.0):
 def adaptive_arcsinh_stretch(data_array, stretch=8.0, black_percentile=1.0, white_percentile=99.7, linked=False):
     """Wrapper retrocompatibile: calcola i parametri e applica lo stretch in un solo step.
     Ora ritorna (stretched, params) invece del solo array, per permettere il riuso dei
-    parametri su un'immagine accoppiata (es. output GraXpert)."""
+    parametri su un'immagine accoppiata."""
     params = compute_stretch_params(data_array, black_percentile, white_percentile, linked)
     stretched = apply_arcsinh_stretch(data_array, params, stretch=stretch)
     return stretched, params
@@ -96,8 +96,7 @@ def process_fits_file(
     Processa un FITS applicando lo stretch arcsinh.
     Se paired_fits_path è fornito (es. l'output GraXpert dello stesso target), i parametri
     di stretch vengono calcolati SOLO sull'immagine principale (rumorosa) e riapplicati
-    IDENTICI all'immagine accoppiata, per evitare mismatch di background/scala tra
-    input e target — lo stesso tipo di problema già visto con StarNet2.
+    IDENTICI all'immagine accoppiata, per evitare mismatch di background/scala tra input e target.
     """
     print(f"Processing {fits_path}")
     basename = fits_path.stem
@@ -149,7 +148,6 @@ def process_fits_file(
         print(e)
         return
 
-    # Riuso ESATTO dei parametri calcolati sull'immagine rumorosa
     paired_stretched = apply_arcsinh_stretch(paired_data, params)
     save_outputs(paired_stretched, basename, paired_output_npy_dir, paired_output_tiff_dir, save_tiff)
     print(f"[OK] {paired_fits_path.name} (paired, stretch riusato da {fits_path.name})")

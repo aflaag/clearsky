@@ -34,10 +34,6 @@ except ImportError:
     HAS_TIFFFILE = False
 
 
-# --------------------------------------------------------------------------
-# Utility di formato
-# --------------------------------------------------------------------------
-
 def to_chw(data):
     """
     Normalizza un array a (C, H, W).
@@ -61,10 +57,6 @@ def from_chw(data_chw, was_hwc):
         return data_chw[0]
     return data_chw
 
-
-# --------------------------------------------------------------------------
-# Rilevamento e correzione
-# --------------------------------------------------------------------------
 
 def robust_sigma(residual, valid=None):
     """Stima robusta di sigma tramite MAD (Median Absolute Deviation)."""
@@ -134,11 +126,6 @@ def correct_pixels(data_chw, bad_per_ch, medians):
         corrected[c][m] = medians[c][m]
     return corrected
 
-
-# --------------------------------------------------------------------------
-# Salvataggio TIFF
-# --------------------------------------------------------------------------
-
 def save_as_tiff(image, path):
     """Salva un'immagine come TIFF RGB uint16 compatibile con StarNet2."""
     if not HAS_TIFFFILE:
@@ -163,10 +150,6 @@ def save_mask_as_tiff(bad_mask, path):
         raise RuntimeError("tifffile non installato: pip install tifffile")
     tifffile.imwrite(str(path), (bad_mask.astype(np.uint8) * 255))
 
-
-# --------------------------------------------------------------------------
-# Elaborazione file
-# --------------------------------------------------------------------------
 
 def process_file(npy_path, mask_dir, out_dir, tiff_dir, mask_tiff_dir,
                   window, sigma_thresh, dilate, save_tiff, save_mask_tiff):
@@ -219,10 +202,6 @@ def process_file(npy_path, mask_dir, out_dir, tiff_dir, mask_tiff_dir,
 
     print(f"  [OK] -> {out_npy.name}")
 
-
-# --------------------------------------------------------------------------
-# Main
-# --------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(

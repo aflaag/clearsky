@@ -117,7 +117,6 @@ def main():
         input_png_dir.mkdir(parents=True, exist_ok=True)
         target_png_dir.mkdir(parents=True, exist_ok=True)
 
-    # Raggruppa per basename per caricare ogni immagine una sola volta
     by_basename = defaultdict(list)
     for entry in entries:
         by_basename[entry["basename"]].append(entry)
