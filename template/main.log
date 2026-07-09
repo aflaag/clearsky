@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.6.22)  9 JUL 2026 19:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.6.22)  9 JUL 2026 21:45
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -414,11 +414,6 @@ File: omlptm.fd
 LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <9> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 46.
 
-Underfull \hbox (badness 1077) in paragraph at lines 49--50
-\OT1/ptm/m/n/10 da-tions, us-ing real, manually-curated Hub-ble
- []
-
-
 Underfull \hbox (badness 1831) in paragraph at lines 56--57
 \OT1/ptm/m/n/10 cor-rec-tions ap-plied in se-quence: re-mov-ing point-like
  []
@@ -436,193 +431,122 @@ Underfull \hbox (badness 4217) in paragraph at lines 70--71
  []\OT1/ptm/b/n/10 Diffusion mod-els. \OT1/ptm/m/n/10 De-nois-ing Dif-fu-sion Prob-a-bilis-tic
  []
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
 
 
 ]
-Underfull \hbox (badness 1661) in paragraph at lines 85--86
+Underfull \hbox (badness 1661) in paragraph at lines 81--82
  []\OT1/ptm/b/n/10 Source im-agery. \OT1/ptm/m/n/10 We start from a man-u-ally cu-rated
+ []
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 97--98
+[][]\OT1/ptm/b/n/10 [TODO: MANCA SP-IE-GARE IL DATASET
+ []
+
+
+Underfull \hbox (badness 3323) in paragraph at lines 102--102
+\OT1/ptm/b/n/9 HLA mo-saics to the three per-task (con-di-tion, tar-get)
+ []
+
+LaTeX Font Info:    Trying to load font information for OMS+ptm on input line 111.
+(/usr/share/texmf-dist/tex/latex/psnfss/omsptm.fd
+File: omsptm.fd 
+)
+LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 111.
+
+Underfull \hbox (badness 2197) in paragraph at lines 111--112
+\OT1/ptm/m/n/10 de-graded im-age back to its clean ver-sion. Tar-gets
+ []
+
+
+Underfull \hbox (badness 1038) in paragraph at lines 111--112
+\OT1/ptm/m/n/10 type, so that $\OML/cmm/m/it/10 ^^R[]$ \OT1/ptm/m/n/10 does not learn any im-plicit content-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 113--114
+ []\OT1/ptm/b/n/10 Architecture. \OT1/ptm/m/n/10 The fol-low-ing ar-chi-tec-ture re-mains
+ []
+
+
+Underfull \hbox (badness 4505) in paragraph at lines 113--114
+\OT1/ptm/m/n/10 U-Net ar-chi-tec-ture (\OT1/ptm/m/it/10 Im-prove-dUNet\OT1/ptm/m/n/10 ) that pro-cesses a
+ []
+
+
+Underfull \hbox (badness 1484) in paragraph at lines 113--114
+\OT1/ptm/m/n/10 6-channel ten-sor ob-tained by con-cate-nat-ing the noisy
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [2]
-Overfull \hbox (58.99423pt too wide) in paragraph at lines 105--115
- [] 
- []
-
-
-Underfull \hbox (badness 3323) in paragraph at lines 121--121
-\OT1/ptm/b/n/9 HLA mo-saics to the three per-task (con-di-tion, tar-get)
- []
-
-
-Underfull \vbox (badness 2020) has occurred while \output is active []
-
  [3
-pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.133 
-      
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.133 
+l.130 
       ]
-Underfull \hbox (badness 1668) in paragraph at lines 134--135
-[]\OT1/ptm/m/n/10 Multi-head self-attention mech-a-nisms ([][]Vaswani et al.[][],
- []
-
-LaTeX Font Info:    Trying to load font information for OMS+ptm on input line 138.
-(/usr/share/texmf-dist/tex/latex/psnfss/omsptm.fd
-File: omsptm.fd 
-)
-LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 138.
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 150.
- (/usr/share/texmf-dist/tex/latex/psnfss/ts1ptm.fd
-File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
-Underfull \hbox (badness 1194) in paragraph at lines 151--152
-[]\OT1/ptm/b/n/10 TIES-Merging \OT1/ptm/m/n/10 ([][]Ya-dav et al.[][], [][]2023[][]): each $\OML/cmm/m/it/10 ^^\[]$ \OT1/ptm/m/n/10 is
- []
-
-
-Underfull \hbox (badness 2103) in paragraph at lines 151--152
-\OT1/ptm/m/n/10 vec-tors, and only co-or-di-nates agree-ing with the
- []
-
-[4]
-Underfull \hbox (badness 3098) in paragraph at lines 167--168
- []\OT1/ptm/b/n/10 Metrics. [][TODO: list met-rics (e.g. PSNR, SSIM,
- []
-
-
-Underfull \hbox (badness 8094) in paragraph at lines 200--200
+Underfull \hbox (badness 8094) in paragraph at lines 161--161
 []\OT1/ptm/m/n/9 Raw MSE, two-stage
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 203--203
+Underfull \hbox (badness 10000) in paragraph at lines 164--164
 []\OT1/ptm/m/n/9 Perceptual Z-score
  []
 
 
-Overfull \hbox (27.20035pt too wide) in paragraph at lines 215--224
+Overfull \hbox (27.20035pt too wide) in paragraph at lines 176--185
  [][] 
  []
 
-[5
+[4
+pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.189 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.228 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.228 
+l.189 
       ]
-Underfull \hbox (badness 5345) in paragraph at lines 255--256
-\OT1/ptm/m/n/9 der-per-formed both spe-cial-ists
- []
-
-
-Underfull \hbox (badness 1383) in paragraph at lines 258--258
-\OT1/ptm/m/n/9 orig-i-nated from the spe-cial-ists or the
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 262--262
-\OT1/ptm/m/n/9 gies and ex-panded hy-per-pa-ram-e-ter
- []
-
-
-Underfull \hbox (badness 6110) in paragraph at lines 263--264
-[]\OT1/ptm/m/n/9 Clear im-prove-ment over the
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 267--268
-[]\OT1/ptm/m/n/9 Evaluation frame-work com-
- []
-
-
-Underfull \hbox (badness 3179) in paragraph at lines 267--268
-\OT1/ptm/m/n/9 pleted, but fi-nal test-ing was
- []
-
-
-Overfull \hbox (156.78192pt too wide) in paragraph at lines 249--270
- [][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 300--300
-[][][][]\OT1/ptm/b/n/9 [TODO: Grid-search land-scape for the best-
- []
-
-
-Underfull \hbox (badness 2237) in paragraph at lines 307--307
-[][][][]\OT1/ptm/b/n/9 [TODO: Qual-i-ta-tive com-par-i-son across merg-ing
- []
-
-
-Underfull \hbox (badness 1024) in paragraph at lines 315--316
+Underfull \hbox (badness 1024) in paragraph at lines 220--221
 \OT1/ptm/b/n/10 (6) fu-ture work: learned/optimized merg-ing co-ef-fi-
  []
 
-[6
-pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has been already used, duplicate ignored
+(./main.bbl [5
+pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.324 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.324 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.324 
-      ] (./main.bbl) [7
-pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.332 \end{document}
-                    ] (./main.aux)
+l.43 
+     ]) [6
+
+] (./main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
- )
-(\end occurred inside a group at level 1)
-
-### simple group (level 1) entered at line 209 ({)
-### bottom level 
+ ) 
 Here is how much of TeX's memory you used:
- 11366 strings out of 469463
- 169591 string characters out of 5469428
- 594868 words of memory out of 5000000
- 39773 multiletter control sequences out of 15000+600000
- 652163 words of font info for 89 fonts, out of 8000000 for 9000
+ 11318 strings out of 469463
+ 168945 string characters out of 5469428
+ 592488 words of memory out of 5000000
+ 39742 multiletter control sequences out of 15000+600000
+ 649757 words of font info for 85 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 75i,11n,79p,1248b,611s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,79p,1803b,611s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (7 pages, 217107 bytes).
+Output written on main.pdf (6 pages, 207307 bytes).
 PDF statistics:
- 258 PDF objects out of 1000 (max. 8388607)
- 214 compressed objects within 3 object streams
- 63 named destinations out of 1000 (max. 500000)
+ 201 PDF objects out of 1000 (max. 8388607)
+ 159 compressed objects within 2 object streams
+ 51 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
