@@ -10,32 +10,40 @@
 \citation{ilharco2023editing}
 \citation{yadav2023ties}
 \citation{yu2024dare}
+\citation{gandikota2024sliders}
+\citation{shah2024ziplora}
+\citation{gu2023mixofshow}
+\citation{hla}
 \newlabel{sec:intro}{{1}{1}{}{section.1}{}}
 \newlabel{sec:related}{{2}{1}{}{section.2}{}}
-\citation{hla}
 \citation{starnet}
 \citation{ho2022cfg}
 \newlabel{sec:method}{{3}{2}{Model merging}{section.3}{}}
 \newlabel{sec:data}{{3.1}{2}{Model merging}{subsection.3.1}{}}
-\newlabel{sec:theta0}{{3.2}{2}{Combined-degradation sets}{subsection.3.2}{}}
-\newlabel{sec:specialists}{{3.4}{3}{Combined-degradation sets}{subsection.3.4}{}}
+\newlabel{sec:theta0}{{3.2}{2}{Dataset generation}{subsection.3.2}{}}
+\newlabel{sec:specialists}{{3.4}{2}{Dataset generation}{subsection.3.4}{}}
 \newlabel{sec:results}{{4}{3}{Two-stage grid search}{section.4}{}}
-\newlabel{tab:zscore_ft}{{1}{3}{Mean perceptual Z-score (averaged over the seven evaluation folders; lower is better) before and after post-merge fine-tuning. The brief fine-tune moves every method from a positive (worse-than-average) to a negative (better-than-average) Z-score, and the three methods converge to a comparable level}{table.1}{}}
 \newlabel{sec:ft-results}{{4.2}{3}{Findings}{subsection.4.2}{}}
+\newlabel{tab:zscore_results}{{4.2}{3}{Findings}{section*.9}{}}
+\newlabel{tab:zscore_ft}{{1}{3}{Mean perceptual Z-score (averaged over the seven evaluation folders; lower is better) before and after post-merge fine-tuning. The brief fine-tune moves every method from a positive (worse-than-average) to a negative (better-than-average) Z-score, and the three methods converge to a comparable level}{table.1}{}}
 \newlabel{sec:discussion}{{5}{3}{Findings}{section.5}{}}
 \bibdata{references.bib}
-\bibcite{ho2022cfg}{{1}{2022}{{Ho \& Salimans}}{{Ho and Salimans}}}
-\bibcite{ho2020ddpm}{{2}{2020}{{Ho et~al.}}{{Ho, Jain, and Abbeel}}}
-\bibcite{ilharco2023editing}{{3}{2023}{{Ilharco et~al.}}{{Ilharco, Ribeiro, Wortsman, Schmidt, and Hajishirzi}}}
-\bibcite{starnet}{{4}{2020}{{Misiura}}{{}}}
-\bibcite{nichol2021improved}{{5}{2021}{{Nichol \& Dhariwal}}{{Nichol and Dhariwal}}}
-\newlabel{fig:results_barplot}{{1}{4}{Per-folder comparison of the three merging methods on the image-space metrics of Tables~\ref {tab:results_mse} and~\ref {tab:results_psnr}: (a) PSNR (higher is better) and (b) MSE on a logarithmic scale (lower is better). The three methods track each other closely on most folders, with differences concentrated on the super-resolution-heavy sets}{figure.1}{}}
-\newlabel{sec:ai}{{6}{4}{Findings}{section.6}{}}
-\bibcite{ronneberger2015unet}{{6}{2015}{{Ronneberger et~al.}}{{Ronneberger, Fischer, and Brox}}}
-\bibcite{salimans2022progressive}{{7}{2022}{{Salimans \& Ho}}{{Salimans and Ho}}}
-\bibcite{hla}{{8}{2006}{{Space Telescope Science Institute (STScI)}}{{}}}
-\bibcite{vaswani2017attention}{{9}{2017}{{Vaswani et~al.}}{{Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin}}}
-\bibcite{yadav2023ties}{{10}{2023}{{Yadav et~al.}}{{Yadav, Albahahar, Choshen, Raffel, and Bansal}}}
-\bibcite{yu2024dare}{{11}{2024}{{Yu et~al.}}{{Yu, Yu, Yu, Li, Liu, Wang, Zhang, and Lin}}}
+\bibcite{gandikota2024sliders}{{1}{2024}{{Gandikota et~al.}}{{Gandikota, Materzy{\'n}ska, Zhou, Torralba, and Bau}}}
+\bibcite{gu2023mixofshow}{{2}{2023}{{Gu et~al.}}{{Gu, Wang, Wu, Shi, Chen, Fan, Xiao, Zhao, Chang, Wu, Ge, Shan, and Shou}}}
+\bibcite{ho2022cfg}{{3}{2022}{{Ho \& Salimans}}{{Ho and Salimans}}}
+\bibcite{ho2020ddpm}{{4}{2020}{{Ho et~al.}}{{Ho, Jain, and Abbeel}}}
+\bibcite{ilharco2023editing}{{5}{2023}{{Ilharco et~al.}}{{Ilharco, Ribeiro, Wortsman, Schmidt, and Hajishirzi}}}
+\bibcite{starnet}{{6}{2020}{{Misiura}}{{}}}
+\bibcite{nichol2021improved}{{7}{2021}{{Nichol \& Dhariwal}}{{Nichol and Dhariwal}}}
+\bibcite{ronneberger2015unet}{{8}{2015}{{Ronneberger et~al.}}{{Ronneberger, Fischer, and Brox}}}
+\bibcite{salimans2022progressive}{{9}{2022}{{Salimans \& Ho}}{{Salimans and Ho}}}
+\bibcite{shah2024ziplora}{{10}{2024}{{Shah et~al.}}{{Shah, Ruiz, Cole, Lu, Lazebnik, Li, and Jampani}}}
+\bibcite{hla}{{11}{2006}{{Space Telescope Science Institute (STScI)}}{{}}}
+\bibcite{vaswani2017attention}{{12}{2017}{{Vaswani et~al.}}{{Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin}}}
+\bibcite{yadav2023ties}{{13}{2023}{{Yadav et~al.}}{{Yadav, Albahahar, Choshen, Raffel, and Bansal}}}
+\bibcite{yu2024dare}{{14}{2024}{{Yu et~al.}}{{Yu, Yu, Yu, Li, Liu, Wang, Zhang, and Lin}}}
 \bibstyle{dlaiml2026}
-\gdef \@abspage@last{5}
+\newlabel{sec:ai}{{6}{4}{Findings}{section.6}{}}
+\newlabel{fig:results_barplot}{{1}{6}{Per-folder comparison of the three fine-tuned merging methods on the image-space metrics: (a) PSNR (higher is better) and (b) MSE on a logarithmic scale (lower is better). The three methods track each other closely on most folders, with differences concentrated on the super-resolution-heavy sets}{figure.1}{}}
+\newlabel{fig:ft_curves}{{2}{6}{Post-merge fine-tuning progress over 25 epochs for TIES, Task Arithmetic and DARE-TIES. Top row: image-space MSE (logarithmic $y$-axis) for train and validation; bottom row: the averaged perceptual Z-score used as the selection objective. Every method shows a monotone decrease in MSE and a Z-score falling from positive (worse-than-average) to negative (better-than-average) values, consistent with Table~\ref {tab:zscore_ft}}{figure.2}{}}
+\gdef \@abspage@last{6}

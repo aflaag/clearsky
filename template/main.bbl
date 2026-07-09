@@ -1,9 +1,21 @@
-\begin{thebibliography}{11}
+\begin{thebibliography}{14}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Gandikota et~al.(2024)Gandikota, Materzy{\'n}ska, Zhou, Torralba, and Bau]{gandikota2024sliders}
+Gandikota, R., Materzy{\'n}ska, J., Zhou, T., Torralba, A., and Bau, D.
+\newblock Concept sliders: {LoRA} adaptors for precise control in diffusion models.
+\newblock In \emph{European Conference on Computer Vision (ECCV)}, 2024.
+\newblock arXiv:2311.12092.
+
+\bibitem[Gu et~al.(2023)Gu, Wang, Wu, Shi, Chen, Fan, Xiao, Zhao, Chang, Wu, Ge, Shan, and Shou]{gu2023mixofshow}
+Gu, Y., Wang, X., Wu, J.~Z., Shi, Y., Chen, Y., Fan, Z., Xiao, W., Zhao, R., Chang, S., Wu, W., Ge, Y., Shan, Y., and Shou, M.~Z.
+\newblock Mix-of-show: Decentralized low-rank adaptation for multi-concept customization of diffusion models.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2023.
+\newblock arXiv:2305.18292.
 
 \bibitem[Ho \& Salimans(2022)Ho and Salimans]{ho2022cfg}
 Ho, J. and Salimans, T.
@@ -40,6 +52,12 @@ Ronneberger, O., Fischer, P., and Brox, T.
 Salimans, T. and Ho, J.
 \newblock Progressive distillation for fast sampling of diffusion models.
 \newblock In \emph{International Conference on Learning Representations (ICLR)}, 2022.
+
+\bibitem[Shah et~al.(2024)Shah, Ruiz, Cole, Lu, Lazebnik, Li, and Jampani]{shah2024ziplora}
+Shah, V., Ruiz, N., Cole, F., Lu, E., Lazebnik, S., Li, Y., and Jampani, V.
+\newblock {ZipLoRA}: Any subject in any style by effectively merging {LoRAs}.
+\newblock In \emph{European Conference on Computer Vision (ECCV)}, 2024.
+\newblock arXiv:2311.13600.
 
 \bibitem[{Space Telescope Science Institute (STScI)}(2006)]{hla}
 {Space Telescope Science Institute (STScI)}.

@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1783633174.44362 "main.aux" "main.bbl" "main" 1783633175.23042 0
+["bibtex main"] 1783635240.86518 "main.aux" "main.bbl" "main" 1783635330.90684 0
   "./dlaiml2026.bst" 1747108319 27123 391b17a7764c6e139758d2aa411ce75b ""
-  "./references.bib" 1783606298.96837 3824 a300c367a9727737281ce68a7dd84b14 ""
-  "main.aux" 1783633174.99507 2804 9cd7975f154eb3035d9b805325b5006a "pdflatex"
+  "./references.bib" 1783633781.5753 5136 ac49ae729d26a471389896c563f158aa ""
+  "main.aux" 1783635330.6773 3711 a005845c849886b16000506c14816103 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1783633174.5185 "main.tex" "main.pdf" "main" 1783633175.23078 0
+["pdflatex"] 1783635329.58252 "main.tex" "main.pdf" "main" 1783635330.9072 0
   "/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc" 1775415801 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1775415801 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1775415801 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -40,10 +40,8 @@
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb" 1775415801 36094 798f80770b3b148ceedd006d487db67c ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1775415801 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb" 1775415801 32762 224316ccc9ad3ca0423a14971cfa7fc1 ""
-  "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb" 1775415801 33993 9b89b85fd2d9df0482bd47194d1d3bf3 ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1775415801 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1775415801 32716 08e384dc442464e7285e891af9f45947 ""
-  "/usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb" 1775415801 32442 c975af247b6702f7ca0c299af3616b80 ""
   "/usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb" 1775415801 45758 19968a0990191524e34e1994d4a31cb6 ""
   "/usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb" 1775415801 44729 811d6c62865936705a31c797a1d5dada ""
   "/usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb" 1775415801 46026 6dab18b61c907687b520c72847215a68 ""
@@ -125,10 +123,11 @@
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1782144765 2380435 b7aab2599ec3d4f3ba71379a52f28915 ""
   "dlaiml2026.sty" 1776085559 27122 68d9b1aa3fc1eb3a03030f35cf79f1a9 ""
   "fancyhdr.sty" 1619586354 20521 e5d13d98d57bd53d4fed3aa61bd29c86 ""
-  "main.aux" 1783633174.99507 2804 9cd7975f154eb3035d9b805325b5006a "pdflatex"
-  "main.bbl" 1783633174.50906 3369 c5885dd468a35aeed593547e5b2a4dd0 "bibtex main"
-  "main.out" 1783633174.83682 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "main.tex" 1783633172.20605 31217 402a5daa7102237903ea391b6e540253 ""
+  "ft_curves.png" 1783633802.66338 762006 796b151165c20714f02033e9beade418 ""
+  "main.aux" 1783635330.6773 3711 a005845c849886b16000506c14816103 "pdflatex"
+  "main.bbl" 1783635240.92005 4551 3665bc3070d3ce433eb8f00922c3ae7a "bibtex main"
+  "main.out" 1783635329.9323 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "main.tex" 1783635328.25729 31561 68ff7266f2a831353508b0c7688dc37b ""
   "results_barplot.pdf" 1783631778.35165 18603 415b0b8225f5457f107bb843597ee6e6 ""
   (generated)
   "main.aux"

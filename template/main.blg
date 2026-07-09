@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: dlaiml2026.bst
 Database file #1: references.bib
-You've used 11 entries,
+You've used 14 entries,
             2773 wiz_defined-function locations,
-            650 strings with 6719 characters,
-and the built_in function-call counts, 6009 in all, are:
-= -- 512
-> -- 389
+            663 strings with 7531 characters,
+and the built_in function-call counts, 8165 in all, are:
+= -- 668
+> -- 623
 < -- 12
-+ -- 131
-- -- 120
-* -- 455
-:= -- 882
-add.period$ -- 35
-call.type$ -- 11
-change.case$ -- 73
-chr.to.int$ -- 11
-cite$ -- 22
-duplicate$ -- 281
-empty$ -- 482
-format.name$ -- 137
-if$ -- 1295
++ -- 209
+- -- 195
+* -- 656
+:= -- 1233
+add.period$ -- 47
+call.type$ -- 14
+change.case$ -- 107
+chr.to.int$ -- 14
+cite$ -- 28
+duplicate$ -- 353
+empty$ -- 605
+format.name$ -- 215
+if$ -- 1727
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 9
-newline$ -- 65
-num.names$ -- 44
-pop$ -- 176
+missing$ -- 12
+newline$ -- 83
+num.names$ -- 56
+pop$ -- 253
 preamble$ -- 1
-purify$ -- 62
+purify$ -- 93
 quote$ -- 0
-skip$ -- 241
+skip$ -- 302
 stack$ -- 0
-substring$ -- 174
-swap$ -- 64
+substring$ -- 180
+swap$ -- 70
 text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 121
+type$ -- 154
 warning$ -- 0
-while$ -- 45
+while$ -- 54
 width$ -- 0
-write$ -- 150
+write$ -- 192
