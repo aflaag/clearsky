@@ -10,6 +10,7 @@ This is the repository for the **DLAI project**.
   - [Super Resolution](./notebooks/super-resolution.ipynb) is the notebook for the specialist on the super resolution task
   - [Star Removal](./notebooks/star-removal.ipynb) is the notebook for the specialist on the star removal task
   - [Task Arithmetic Merging](./notebooks/task-arithmetic-merging.ipynb) is the notebook for the Task Arithmetic merging
+  - [TIES/DARE-TIES Merging](./notebooks/ties-dare-ties-merging.ipynb) is the notebook for the TIES and DARE-TIES merging
   - [Fine-tuned (Task Arithmetic)](./notebooks/fine-tuned-task-arithmetic.ipynb) is the notebook for the fine-tuned Task Arithmetic model
   - [Fine-tuned (DARE-TIES)](./notebooks/fine-tuned-dare-ties.ipynb) is the notebook for the fine-tuned TIES and DARE-TIES model
 
