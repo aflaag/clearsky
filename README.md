@@ -4,7 +4,14 @@
 
 This is the repository for the **DLAI project**.
 
-- The **Kaggle notebooks** used for training all the models are available [here](TODO).
+- The **notebooks** used for training all the models are all available [here](./notebooks/).
+  - [Pretraining](<https://raw.githubusercontent.com/aflaag/clearsky/main/notebooks/pretraining.ipynb>) is the notebook for the pretrained model
+  - [Image Restoration](<https://raw.githubusercontent.com/aflaag/clearsky/main/notebooks/image-restoration.ipynb>) is the notebook for the specialist on the image restoration task
+  - [Super Resolution](<https://raw.githubusercontent.com/aflaag/clearsky/main/notebooks/super-resolution.ipynb>) is the notebook for the specialist on the super resolution task
+  - [Star Removal](<https://raw.githubusercontent.com/aflaag/clearsky/main/notebooks/star-remvoal.ipynb>) is the notebook for the specialist on the star removal task
+  - [Task Arithmetic Merging](<https://raw.githubusercontent.com/aflaag/clearsky/main/notebooks/task-arithmetic-merging.ipynb>) is the notebook for the Task Arithmetic merging
+  - [Fine-tuned (Task Arithmetic](<https://raw.githubusercontent.com/aflaag/clearsky/main/notebooks/fine-tuned-task-arithmetic.ipynb>) is the notebook for the fine-tuned Task Arithmetic model
+  - [Fine-tuned (DARE-TIES)](<https://raw.githubusercontent.com/aflaag/clearsky/main/notebooks/fine-tuned-dare-ties.ipynb>) is the notebook for the fine-tuned TIES and DARE-TIES model
 
 - The PDF of the **report** is available [here](<https://raw.githubusercontent.com/aflaag/clearsky/main/report/main.pdf>).
 
